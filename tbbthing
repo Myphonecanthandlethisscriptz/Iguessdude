@@ -21,7 +21,6 @@ local validProjectiles = {
     ["Rocket"] = true,
     ["BigRocket"] = true,
     ["Paintball"] = true,
-    ["Hyperlaser"] = true,
     ["CrossbowArrow"] = true,
     ["Hellrocket"] = true,
     ["BiggerRocket"] = true,
@@ -41,12 +40,6 @@ local validProjectiles = {
     ["EpicKunai"] = true,
     ["GameProjectile"] = true,
     ["SuperSpam"] = true,
-
-    -- Disabled from teleporting
-    ["GrandPiano"] = false,
-
-    ["PLACEHOLDER"] = true,
-    ["Hand"] = true,
     ["Execnade"] = true,
     ["Cesuspot"] = true,
     ["Ghostwalker"] = true,
@@ -88,6 +81,7 @@ local deleteProjectiles = {
      ["CannonBall"] = true,
      ["Hellball"] = true,
      ["BigHellball"] = true,
+     ["Hand"] = true,
 }
 
 --------------------------------------------------
