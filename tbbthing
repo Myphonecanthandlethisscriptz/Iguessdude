@@ -54,7 +54,8 @@ local validProjectiles = {
     ["Bigiceball"] = true,
     ["Fireball"] = true,
     ["Noir"] = true,
-    ["BigFireball"] = true
+    ["BigFireball"] = true,
+    ["CesusBomb"] = true,
 }
 
 --------------------------------------------------
