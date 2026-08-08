@@ -59,6 +59,7 @@ local validProjectiles = {
     ["LilCesuspot"] = true,
     ["BloodStone"] = true,
     ["BloodCrystal"] = true,
+    ["TumorePellet"] = true,
 }
 
 --------------------------------------------------
