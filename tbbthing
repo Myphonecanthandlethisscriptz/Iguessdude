@@ -81,6 +81,7 @@ local deleteProjectiles = {
     ["HyperBomb"] = true,
     ["BiggerRocket"] = true,
     ["Hellrocket"] = true,
+    ["Flashbang"] = true,
 }
 
 --------------------------------------------------
