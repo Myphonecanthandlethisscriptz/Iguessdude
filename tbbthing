@@ -79,7 +79,7 @@ local deleteProjectiles = {
      ["Magicball"] = true,
     ["Ipecac"] = true,
     ["HyperBomb"] = true,
-    [BiggerRocket"] = true,
+    ["BiggerRocket"] = true,
     ["Hellrocket"] = true,
 }
 
