@@ -85,7 +85,9 @@ local deleteProjectiles = {
     ["Flashbang"] = true,
     ["PirateJuice"] = true,
     ["SuperCannonBall"] = true,
-     ["CannonBall"]
+     ["CannonBall"] = true,
+     ["Hellball"] = true,
+     ["BigHellball"] = true,
 }
 
 --------------------------------------------------
