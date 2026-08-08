@@ -45,7 +45,7 @@ local validProjectiles = {
     -- Disabled from teleporting
     ["GrandPiano"] = false,
 
-    ["Hellball"] = true,
+    ["PLACEHOLDER"] = true,
     ["Hand"] = true,
     ["Execnade"] = true,
     ["Cesuspot"] = true,
