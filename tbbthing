@@ -1,19 +1,22 @@
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local RunService = game:GetService("RunService")
 
 --------------------------------------------------
 -- FOLDERS
 --------------------------------------------------
 
-local npcFolders = workspace:WaitForChild("NPCFolders")
-local friendlyFolder = npcFolders:WaitForChild("FriendlyFolder")
-local enemyFolder = npcFolders:WaitForChild("EnemyFolder")
+local npcFolder = Workspace:WaitForChild("NPCFolders")
 
-local projectileFolder = workspace:WaitForChild("Projectile")
+local enemyFolder = npcFolder:WaitForChild("EnemyFolder")
+local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder")
+
+local projectileFolder = Workspace:WaitForChild("Projectile")
+
 
 --------------------------------------------------
--- HP BAR TEMPLATES
+-- HP BARS
 --------------------------------------------------
 
 local hpBars = ReplicatedStorage
@@ -23,6 +26,89 @@ local hpBars = ReplicatedStorage
 local friendlyTemplate = hpBars:WaitForChild("Friendly")
 local enemyTemplate = hpBars:WaitForChild("Enemy")
 local bossTemplate = hpBars:WaitForChild("Boss")
+
+
+--------------------------------------------------
+-- PROJECTILE LIST
+--------------------------------------------------
+
+local validProjectiles = {
+	["Pellet"] = true,
+	["Superball"] = true,
+	["BigHellball"] = true,
+	["Cupcake"] = true,
+	["GlowThrowingAxe"] = true,
+	["Rocket"] = true,
+	["BigRocket"] = true,
+	["Paintball"] = true,
+	["CrossbowArrow"] = true,
+	["Hellrocket"] = true,
+	["BiggerRocket"] = true,
+	["Grenade"] = true,
+	["Molotov"] = true,
+	["SpiritBomb"] = true,
+	["Soccerball"] = true,
+	["Cake"] = true,
+	["Coal"] = true,
+	["ZekaRocket"] = true,
+	["TNT"] = true,
+	["Paintnade"] = true,
+	["Arrow"] = true,
+	["WoodArrow"] = true,
+	["LightBomb"] = true,
+	["RainbowBomb"] = true,
+	["EpicKunai"] = true,
+	["GameProjectile"] = true,
+	["SuperSpam"] = true,
+	["Execnade"] = true,
+	["Cesuspot"] = true,
+	["Ghostwalker"] = true,
+	["Bacon"] = true,
+	["BigGhostwalker"] = true,
+	["BloodArrow"] = true,
+	["SorcusBlade"] = true,
+	["ThrowingAxe"] = true,
+	["FireTeapot"] = true,
+	["Teapot"] = true,
+	["Iceball"] = true,
+	["Bigiceball"] = true,
+	["Fireball"] = true,
+	["Noir"] = true,
+	["BigFireball"] = true,
+	["CesusBomb"] = true,
+	["LilCesuspot"] = true,
+	["BloodStone"] = true,
+	["BloodCrystal"] = true,
+	["TumorePellet"] = true,
+}
+
+
+--------------------------------------------------
+-- PROJECTILES TO DELETE
+--------------------------------------------------
+
+local deleteProjectiles = {
+	["Hyperlaser"] = true,
+	["Ghostwalker"] = true,
+	["BigRocket"] = true,
+	["SpiritBomb"] = true,
+	["SorcusBlade"] = true,
+	["GameProjectile"] = true,
+	["RainbowBomb"] = true,
+	["GrandPiano"] = true,
+	["Magicball"] = true,
+	["Ipecac"] = true,
+	["HyperBomb"] = true,
+	["BiggerRocket"] = true,
+	["Hellrocket"] = true,
+	["Flashbang"] = true,
+	["PirateJuice"] = true,
+	["SuperCannonBall"] = true,
+	["CannonBall"] = true,
+	["Hellball"] = true,
+	["BigHellball"] = true,
+	["Hand"] = true,
+}
 
 
 --------------------------------------------------
@@ -47,12 +133,19 @@ local function createHPBar(npc, template, barName)
 		return
 	end
 
-	-- Don't duplicate bars
+	--------------------------------------------------
+	-- DON'T DUPLICATE
+	--------------------------------------------------
+
 	local oldBar = head:FindFirstChild(barName)
 
 	if oldBar then
 		oldBar:Destroy()
 	end
+
+	--------------------------------------------------
+	-- CLONE
+	--------------------------------------------------
 
 	local hpBar = template:Clone()
 	hpBar.Name = barName
@@ -64,16 +157,24 @@ local function createHPBar(npc, template, barName)
 
 	hpBar.Parent = head
 
+	--------------------------------------------------
+	-- FIND UI
+	--------------------------------------------------
+
 	local bar = findChild(hpBar, "Bar")
 	local textLabel = findChild(hpBar, "TextLabel")
 
 	if not bar then
-		warn("HP bar is missing Bar:", template:GetFullName())
+		warn(
+			"HP bar is missing 'Bar':",
+			template:GetFullName()
+		)
+
 		return
 	end
 
 	--------------------------------------------------
-	-- REMEMBER ORIGINAL HEIGHT
+	-- ORIGINAL HEIGHT
 	--------------------------------------------------
 
 	local originalYScale = bar.Size.Y.Scale
@@ -96,7 +197,7 @@ local function createHPBar(npc, template, barName)
 	)
 
 	--------------------------------------------------
-	-- UPDATE
+	-- UPDATE HP
 	--------------------------------------------------
 
 	local function update()
@@ -108,12 +209,22 @@ local function createHPBar(npc, template, barName)
 		local health = humanoid.Health
 		local maxHealth = humanoid.MaxHealth
 
+		--------------------------------------------------
+		-- TEXT
+		--------------------------------------------------
+
 		if textLabel then
+
 			textLabel.Text =
 				math.floor(math.max(health, 0))
 				.. "/"
 				.. math.floor(maxHealth)
+
 		end
+
+		--------------------------------------------------
+		-- DEAD
+		--------------------------------------------------
 
 		if health <= 0 or maxHealth <= 0 then
 
@@ -131,6 +242,10 @@ local function createHPBar(npc, template, barName)
 			return
 		end
 
+		--------------------------------------------------
+		-- ALIVE
+		--------------------------------------------------
+
 		if hpBar:IsA("BillboardGui") then
 			hpBar.Enabled = true
 		end
@@ -147,11 +262,27 @@ local function createHPBar(npc, template, barName)
 			originalYScale,
 			originalYOffset
 		)
+
 	end
+
+
+	--------------------------------------------------
+	-- INITIAL
+	--------------------------------------------------
 
 	update()
 
+
+	--------------------------------------------------
+	-- HEALTH CHANGED
+	--------------------------------------------------
+
 	humanoid.HealthChanged:Connect(update)
+
+
+	--------------------------------------------------
+	-- DIED
+	--------------------------------------------------
 
 	humanoid.Died:Connect(function()
 
@@ -165,12 +296,14 @@ local function createHPBar(npc, template, barName)
 		if hpBar:IsA("BillboardGui") then
 			hpBar.Enabled = false
 		end
+
 	end)
+
 end
 
 
 --------------------------------------------------
--- NPC SETUP
+-- SETUP NPC
 --------------------------------------------------
 
 local function setupNPC(npc)
@@ -190,11 +323,13 @@ local function setupNPC(npc)
 	if CollectionService:HasTag(npc, "Boss") then
 
 		if npc:IsDescendantOf(enemyFolder) then
+
 			createHPBar(
 				npc,
 				bossTemplate,
 				"BossHPBar"
 			)
+
 		end
 
 		return
@@ -228,70 +363,101 @@ local function setupNPC(npc)
 		)
 
 	end
-end
-
-
---------------------------------------------------
--- EXISTING NPCs
---------------------------------------------------
-
-for _, npc in ipairs(friendlyFolder:GetDescendants()) do
-
-	if npc:IsA("Model") and npc:FindFirstChildOfClass("Humanoid") then
-		task.spawn(setupNPC, npc)
-	end
-
-end
-
-
-for _, npc in ipairs(enemyFolder:GetDescendants()) do
-
-	if npc:IsA("Model") and npc:FindFirstChildOfClass("Humanoid") then
-		task.spawn(setupNPC, npc)
-	end
 
 end
 
 
 --------------------------------------------------
--- NEW NPCs
+-- EXISTING FRIENDLY NPCs
 --------------------------------------------------
 
-friendlyFolder.DescendantAdded:Connect(function(object)
+for _, object in ipairs(
+	friendlyFolder:GetDescendants()
+) do
 
-	task.wait(0.1)
+	if object:IsA("Model")
+		and object:FindFirstChildOfClass("Humanoid") then
 
-	if object:IsA("Model") then
-		setupNPC(object)
+		task.spawn(
+			setupNPC,
+			object
+		)
+
 	end
 
-end)
-
-
-enemyFolder.DescendantAdded:Connect(function(object)
-
-	task.wait(0.1)
-
-	if object:IsA("Model") then
-		setupNPC(object)
-	end
-
-end)
+end
 
 
 --------------------------------------------------
--- BOSS TAG ADDED
+-- EXISTING ENEMY / BOSS NPCs
 --------------------------------------------------
 
-CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
+for _, object in ipairs(
+	enemyFolder:GetDescendants()
+) do
 
-	task.wait(0.1)
+	if object:IsA("Model")
+		and object:FindFirstChildOfClass("Humanoid") then
 
-	if object:IsDescendantOf(enemyFolder) then
-		setupNPC(object)
+		task.spawn(
+			setupNPC,
+			object
+		)
+
 	end
 
-end)
+end
+
+
+--------------------------------------------------
+-- NEW FRIENDLY NPCs
+--------------------------------------------------
+
+friendlyFolder.DescendantAdded:Connect(
+	function(object)
+
+		task.wait(0.1)
+
+		if object:IsA("Model") then
+			setupNPC(object)
+		end
+
+	end
+)
+
+
+--------------------------------------------------
+-- NEW ENEMY / BOSS NPCs
+--------------------------------------------------
+
+enemyFolder.DescendantAdded:Connect(
+	function(object)
+
+		task.wait(0.1)
+
+		if object:IsA("Model") then
+			setupNPC(object)
+		end
+
+	end
+)
+
+
+--------------------------------------------------
+-- BOSS TAG ADDED LATER
+--------------------------------------------------
+
+CollectionService:GetInstanceAddedSignal("Boss"):Connect(
+	function(object)
+
+		task.wait(0.1)
+
+		if object:IsDescendantOf(enemyFolder) then
+			setupNPC(object)
+		end
+
+	end
+)
 
 
 --------------------------------------------------
@@ -300,81 +466,91 @@ end)
 --================================================
 --------------------------------------------------
 
-local validProjectiles = {
-
-	Pellet = true,
-	Superball = true,
-	BigHellball = true,
-	Cupcake = true,
-	GlowThrowingAxe = true,
-	Rocket = true,
-	BigRocket = true,
-	Paintball = true,
-	Hyperlaser = true,
-	CrossbowArrow = true,
-	Hellrocket = true,
-	BiggerRocket = true,
-	Grenade = true,
-	Molotov = true,
-	SpiritBomb = true,
-	Soccerball = true,
-	Cake = true,
-	Coal = true,
-	ZekaRocket = true,
-	TNT = true,
-	OwO = true,
-	Arrow = true,
-	WoodArrow = true,
-	LightBomb = true,
-	RainbowBomb = true,
-	EpicKunai = true,
-	GameProjectile = true,
-	SuperSpam = true
-
-	-- Kept exactly as in the previous setup
-	GrandPiano = false,
-
-	Hellball = true,
-	Hand = true,
-	Execnade = true,
-	Cesuspot = true,
-	Ipecac = true,
-	Ghostwalker = true,
-	Bacon = true,
-	BigGhostwalker = true,
-	BloodArrow = true,
-	SorcusBlade = true,
-	ThrowingAxe = true,
-	FireTeapot = true,
-	Teapot = true,
-	Iceball = true,
-	Bigiceball = true,
-	Fireball = true,
-	Noir = true,
-    BloodStone = true,
-    BloodCrystal = true,
-}
+local projectileList = {}
+local bodyAngularList = {}
 
 
 --------------------------------------------------
--- PROJECTILES TO DELETE
+-- GET PROJECTILE ROOT
 --------------------------------------------------
 
-local deleteProjectiles = {
+local function getProjectileRoot(obj)
 
-	Hyperlaser = true,
-	Ghostwalker = true,
-	BigRocket = true,
-	SpiritBomb = true,
-	SorcusBlade = true,
-	GameProjectile = true,
-	RainbowBomb = true,
-	GrandPiano = true,
-}
+	if obj:IsA("BasePart") then
+		return obj
+	end
+
+	if obj:IsA("Model") then
+
+		if obj.PrimaryPart then
+			return obj.PrimaryPart
+		end
+
+		return obj:FindFirstChildWhichIsA(
+			"BasePart",
+			true
+		)
+
+	end
+
+	return obj:FindFirstChildWhichIsA(
+		"BasePart",
+		true
+	)
+
+end
 
 
 --------------------------------------------------
--- FIND NPC TARGET
+-- GET PROJECTILE POSITION
+--------------------------------------------------
+
+local function getProjectilePosition(obj)
+
+	if obj:IsA("BasePart") then
+		return obj.Position
+	end
+
+	if obj:IsA("Model") then
+		return obj:GetPivot().Position
+	end
+
+	local root = getProjectileRoot(obj)
+
+	if root then
+		return root.Position
+	end
+
+	return nil
+end
+
+
+--------------------------------------------------
+-- REMOVE TOUCH INTERESTS
+--------------------------------------------------
+
+local function removeTouchInterests(obj)
+
+	if obj:IsA("TouchInterest") then
+		obj:Destroy()
+		return
+	end
+
+	for _, descendant in ipairs(
+		obj:GetDescendants()
+	) do
+
+		if descendant:IsA("TouchInterest") then
+			descendant:Destroy()
+		end
+
+	end
+
+end
+
+
+--------------------------------------------------
+-- GET NEAREST VALID NPC
 --------------------------------------------------
 
 local function getNearestNPC(position)
@@ -382,36 +558,45 @@ local function getNearestNPC(position)
 	local nearestNPC = nil
 	local nearestDistance = math.huge
 
-	for _, npc in ipairs(enemyFolder:GetChildren()) do
+	for _, npc in ipairs(
+		enemyFolder:GetChildren()
+	) do
 
-		if npc:IsA("Model") then
+		local humanoid =
+			npc:FindFirstChildOfClass("Humanoid")
 
-			local humanoid = npc:FindFirstChildOfClass("Humanoid")
+		local root =
+			npc:FindFirstChild(
+				"HumanoidRootPart"
+			)
 
-			if humanoid and humanoid.Health > 0 then
+		--------------------------------------------------
+		-- FLYING NPCs ARE NEVER TARGETED
+		--------------------------------------------------
 
-				-- Flying NPCs are NOT valid targets.
-				-- Their parts are NOT deleted.
-				if not npc:GetAttribute("Flying") then
+		local isFlying =
+			npc:GetAttribute("Flying") ~= nil
 
-					local targetPart =
-						npc:FindFirstChild("Hitbox", true)
-						or npc:FindFirstChild("HumanoidRootPart", true)
+		if humanoid
+			and humanoid.Health > 0
+			and root
+			and not isFlying then
 
-					if targetPart and targetPart:IsA("BasePart") then
+			local distance =
+				(
+					root.Position
+					- position
+				).Magnitude
 
-						local distance =
-							(position - targetPart.Position).Magnitude
+			if distance < nearestDistance then
 
-						if distance < nearestDistance then
-							nearestDistance = distance
-							nearestNPC = npc
-						end
+				nearestDistance = distance
+				nearestNPC = npc
 
-					end
-				end
 			end
+
 		end
+
 	end
 
 	return nearestNPC
@@ -419,196 +604,149 @@ end
 
 
 --------------------------------------------------
--- REMOVE TOUCH INTEREST
+-- FORCE MOVE PROJECTILE
 --------------------------------------------------
 
-local function removeTouchInterest(object)
+local function forceMoveProjectile(
+	obj,
+	targetCFrame
+)
 
-	for _, descendant in ipairs(object:GetDescendants()) do
+	--------------------------------------------------
+	-- BASEPART
+	--------------------------------------------------
 
-		if descendant:IsA("TouchTransmitter") then
-			descendant:Destroy()
-		elseif descendant.Name == "TouchInterest" then
-			descendant:Destroy()
-		end
+	if obj:IsA("BasePart") then
 
+		obj.CFrame = targetCFrame
+
+		return
 	end
 
-	if object:IsA("BasePart") then
+	--------------------------------------------------
+	-- MODEL
+	--------------------------------------------------
 
-		for _, child in ipairs(object:GetChildren()) do
+	if obj:IsA("Model") then
 
-			if child:IsA("TouchTransmitter")
-				or child.Name == "TouchInterest" then
+		obj:PivotTo(targetCFrame)
 
-				child:Destroy()
-			end
-
-		end
+		return
 	end
+
+	--------------------------------------------------
+	-- OTHER
+	--------------------------------------------------
+
+	local root = getProjectileRoot(obj)
+
+	if root then
+		root.CFrame = targetCFrame
+	end
+
 end
 
 
 --------------------------------------------------
--- SPIN PROJECTILE
+-- HANDLE PROJECTILE
 --------------------------------------------------
 
-local function addSpin(part)
+local function handleProjectile(obj)
 
-	if not part:IsA("BasePart") then
+	if not obj or not obj.Parent then
 		return
 	end
 
-	local existing = part:FindFirstChild("ProjectileSpin")
-
-	if existing then
-		existing:Destroy()
-	end
-
-	local angularVelocity =
-		Instance.new("BodyAngularVelocity")
-
-	angularVelocity.Name = "ProjectileSpin"
-
-	angularVelocity.MaxTorque =
-		Vector3.new(1000000, 1000000, 1000000)
-
-	angularVelocity.AngularVelocity =
-		Vector3.new(-40, 0, 0)
-
-	angularVelocity.Parent = part
-
-	return angularVelocity
-end
-
-
---------------------------------------------------
--- PROCESS PROJECTILE
---------------------------------------------------
-
-local function processProjectile(object)
-
-	if not object then
+	if projectileList[obj] then
 		return
 	end
 
-	--------------------------------------------------
-	-- DELETE LIST
-	--------------------------------------------------
+	local root = getProjectileRoot(obj)
 
-	if deleteProjectiles[object.Name] then
-
-		object:Destroy()
-
+	if not root then
 		return
 	end
 
+	projectileList[obj] = true
 
 	--------------------------------------------------
-	-- VALID PROJECTILE
+	-- REMOVE TOUCH
 	--------------------------------------------------
 
-	if not validProjectiles[object.Name] then
-		return
-	end
-
-
-	--------------------------------------------------
-	-- FIND MAIN PART
-	--------------------------------------------------
-
-	local mainPart = nil
-
-	if object:IsA("BasePart") then
-
-		mainPart = object
-
-	elseif object:IsA("Model") then
-
-		mainPart =
-			object.PrimaryPart
-			or object:FindFirstChildWhichIsA(
-				"BasePart",
-				true
-			)
-
-	end
-
-	if not mainPart then
-		return
-	end
-
-
-	--------------------------------------------------
-	-- REMOVE TOUCH INTEREST
-	--------------------------------------------------
-
-	removeTouchInterest(object)
-
+	removeTouchInterests(obj)
 
 	--------------------------------------------------
 	-- SPIN
 	--------------------------------------------------
 
-	addSpin(mainPart)
-
-
-	--------------------------------------------------
-	-- FIND TARGET
-	--------------------------------------------------
-
-	local target = getNearestNPC(
-		mainPart.Position
-	)
-
-	if not target then
-		return
-	end
-
-
-	--------------------------------------------------
-	-- TARGET PART
-	--------------------------------------------------
-
-	local targetPart =
-		target:FindFirstChild("Hitbox", true)
-		or target:FindFirstChild("HumanoidRootPart", true)
-
-	if not targetPart or not targetPart:IsA("BasePart") then
-		return
-	end
-
-
-	--------------------------------------------------
-	-- MOVE PROJECTILE
-	--------------------------------------------------
-
-	if object:IsA("BasePart") then
-
-		object.CFrame =
-			CFrame.new(targetPart.Position)
-
-	elseif object:IsA("Model") then
-
-		object:PivotTo(
-			CFrame.new(targetPart.Position)
+	local bav =
+		root:FindFirstChildOfClass(
+			"BodyAngularVelocity"
 		)
 
+	if not bav then
+
+		bav = Instance.new(
+			"BodyAngularVelocity"
+		)
+
+		bav.MaxTorque =
+			Vector3.new(
+				1e6,
+				1e6,
+				1e6
+			)
+
+		bav.AngularVelocity =
+			Vector3.new(
+				-40,
+				0,
+				0
+			)
+
+		bav.Parent = root
+
 	end
+
+	bodyAngularList[bav] = true
+
 end
 
 
 --------------------------------------------------
--- INITIAL PROJECTILES
+-- DELETE PROJECTILE
 --------------------------------------------------
 
-for _, object in ipairs(
+local function deleteProjectile(obj)
+
+	if not obj or not obj.Parent then
+		return
+	end
+
+	projectileList[obj] = nil
+
+	obj:Destroy()
+
+end
+
+
+--------------------------------------------------
+-- INITIAL PROJECTILE SCAN
+--------------------------------------------------
+
+for _, obj in ipairs(
 	projectileFolder:GetDescendants()
 ) do
 
-	task.spawn(function()
-		processProjectile(object)
-	end)
+	if deleteProjectiles[obj.Name] then
+
+		deleteProjectile(obj)
+
+	elseif validProjectiles[obj.Name] then
+
+		handleProjectile(obj)
+
+	end
 
 end
 
@@ -617,42 +755,43 @@ end
 -- NEW PROJECTILES
 --------------------------------------------------
 
-projectileFolder.DescendantAdded:Connect(function(object)
+projectileFolder.DescendantAdded:Connect(
+	function(obj)
 
-	task.spawn(function()
+		if deleteProjectiles[obj.Name] then
 
-		-- Give models/parts time to finish appearing
-		task.wait()
+			deleteProjectile(obj)
 
-		processProjectile(object)
+			return
+		end
 
-	end)
+		if validProjectiles[obj.Name] then
+			handleProjectile(obj)
+		end
 
-end)
+	end
+)
 
 
 --------------------------------------------------
--- DELETE LIST CHECK
--- Runs every 0.01 seconds like before
+-- DELETE PROJECTILES EVERY 0.01
 --------------------------------------------------
 
 task.spawn(function()
 
 	while true do
 
-		for _, object in ipairs(
+		task.wait(0.01)
+
+		for _, obj in ipairs(
 			projectileFolder:GetDescendants()
 		) do
 
-			if deleteProjectiles[object.Name] then
-
-				object:Destroy()
-
+			if deleteProjectiles[obj.Name] then
+				deleteProjectile(obj)
 			end
 
 		end
-
-		task.wait(0.01)
 
 	end
 
@@ -660,52 +799,116 @@ end)
 
 
 --------------------------------------------------
--- KEEP PROJECTILE SPINNING
+-- MAIN PROJECTILE LOOP
 --------------------------------------------------
 
-RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(
+	function()
 
-	for _, object in ipairs(
-		projectileFolder:GetDescendants()
-	) do
+		--------------------------------------------------
+		-- KEEP SPINNING
+		--------------------------------------------------
 
-		if validProjectiles[object.Name] then
+		for bav in pairs(bodyAngularList) do
 
-			local part = nil
+			if bav.Parent then
 
-			if object:IsA("BasePart") then
-
-				part = object
-
-			elseif object:IsA("Model") then
-
-				part =
-					object.PrimaryPart
-					or object:FindFirstChildWhichIsA(
-						"BasePart",
-						true
+				bav.AngularVelocity =
+					Vector3.new(
+						-40,
+						0,
+						0
 					)
+
+			else
+
+				bodyAngularList[bav] = nil
+
 			end
 
-			if part then
-
-				local spin =
-					part:FindFirstChild("ProjectileSpin")
-
-				if spin and spin:IsA("BodyAngularVelocity") then
-
-					spin.MaxTorque =
-						Vector3.new(
-							1000000,
-							1000000,
-							1000000
-						)
-
-					spin.AngularVelocity =
-						Vector3.new(-40, 0, 0)
-
-				end
-			end
 		end
+
+
+		--------------------------------------------------
+		-- MOVE PROJECTILES
+		--------------------------------------------------
+
+		for projectile in pairs(
+			projectileList
+		) do
+
+			if not projectile.Parent then
+
+				projectileList[projectile] = nil
+
+				continue
+
+			end
+
+			local position =
+				getProjectilePosition(
+					projectile
+				)
+
+			if not position then
+				continue
+			end
+
+			local target =
+				getNearestNPC(position)
+
+			if not target then
+				continue
+			end
+
+			--------------------------------------------------
+			-- HITBOX FIRST
+			--------------------------------------------------
+
+			local hitbox =
+				target:FindFirstChild(
+					"Hitbox"
+				)
+
+			--------------------------------------------------
+			-- ROOT SECOND
+			--------------------------------------------------
+
+			local root =
+				target:FindFirstChild(
+					"HumanoidRootPart"
+				)
+
+			local targetCFrame = nil
+
+			if hitbox
+				and hitbox:IsA("BasePart") then
+
+				targetCFrame =
+					hitbox.CFrame
+
+			elseif root
+				and root:IsA("BasePart") then
+
+				targetCFrame =
+					root.CFrame
+
+			end
+
+			--------------------------------------------------
+			-- MOVE
+			--------------------------------------------------
+
+			if targetCFrame then
+
+				forceMoveProjectile(
+					projectile,
+					targetCFrame
+				)
+
+			end
+
+		end
+
 	end
-end)
+)
