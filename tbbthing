@@ -329,7 +329,7 @@ local validProjectiles = {
 	RainbowBomb = true,
 	EpicKunai = true,
 	GameProjectile = true,
-	SuperSpam = true,
+	SuperSpam = true
 
 	-- Kept exactly as in the previous setup
 	GrandPiano = false,
@@ -351,6 +351,8 @@ local validProjectiles = {
 	Bigiceball = true,
 	Fireball = true,
 	Noir = true,
+    BloodStone = true,
+    BloodCrystal = true,
 }
 
 
