@@ -108,6 +108,7 @@ local deleteProjectiles = {
 	["Hellball"] = true,
 	["BigHellball"] = true,
 	["Hand"] = true,
+    ["Rocket"] = true,
 }
 
 
