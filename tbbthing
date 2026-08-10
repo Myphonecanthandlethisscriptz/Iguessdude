@@ -80,6 +80,7 @@ local validProjectiles = {
 	["BloodStone"] = true,
 	["BloodCrystal"] = true,
 	["TumorePellet"] = true,
+    ["CrimsonBall"] = true, 
 }
 
 
