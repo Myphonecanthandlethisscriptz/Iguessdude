@@ -82,6 +82,7 @@ local validProjectiles = {
 	["TumorePellet"] = true,
     ["CrimsonBall"] = true,
     ["Banana"] = true,
+    ["Shuriken"] = true,
 }
 
 
@@ -113,6 +114,7 @@ local deleteProjectiles = {
     ["Rocket"] = true,
     ["Paintball"] = true,
     ["Piano"] = true,
+    ["ExplodeCanonball"] = true,
 }
 
 
