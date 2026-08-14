@@ -100,10 +100,7 @@ local deleteProjectiles = {
 	Hellball = true,
 	BigHellball = true,
 	Hand = true,
-	Rocket = true,
-	Paintball = true,
 	Piano = true,
-	ExplodeCannonBall = true,
 }
 
 --------------------------------------------------
