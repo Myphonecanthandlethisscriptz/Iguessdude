@@ -76,7 +76,6 @@ local validProjectiles = {
 	TumorePellet = true,
 	CrimsonBall = true,
 	Banana = true,
-	Shuriken = true,
 }
 
 local deleteProjectiles = {
