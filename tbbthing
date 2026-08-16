@@ -351,20 +351,6 @@ local function getProjectilePosition(obj)
 end
 
 --------------------------------------------------
--- CHECK IF MOVING RIGHT
---------------------------------------------------
-
-local function isFlyingRight(obj)
-	local root = getProjectileRoot(obj)
-
-	if not root then
-		return false
-	end
-
-	return root.AssemblyLinearVelocity.X > 0
-end
-
---------------------------------------------------
 -- REMOVE TOUCH INTERESTS
 --------------------------------------------------
 
@@ -530,22 +516,6 @@ projectileFolder.DescendantAdded:Connect(function(obj)
 end)
 
 --------------------------------------------------
--- RIGHT-MOVING PROJECTILE CHECK
---------------------------------------------------
-
-task.spawn(function()
-	while true do
-		task.wait(0.01)
-
-		for _, obj in ipairs(projectileFolder:GetDescendants()) do
-			if obj.Parent and isFlyingRight(obj) then
-				deleteProjectile(obj)
-			end
-		end
-	end
-end)
-
---------------------------------------------------
 -- DELETE LIST CHECK
 --------------------------------------------------
 
@@ -589,11 +559,6 @@ RunService.Heartbeat:Connect(function()
 	for projectile in pairs(projectileList) do
 		if not projectile.Parent then
 			projectileList[projectile] = nil
-			continue
-		end
-
-		if isFlyingRight(projectile) then
-			deleteProjectile(projectile)
 			continue
 		end
 
