@@ -80,7 +80,7 @@ local validProjectiles = {
 }
 
 local deleteProjectiles = {
-	Hyperlaser = true,
+	Hyperlaserr = true,
 	Ghostwalker = true,
 	BigRocket = true,
 	SpiritBomb = true,
@@ -94,7 +94,7 @@ local deleteProjectiles = {
 	BiggerRocket = true,
 	Hellrocket = true,
 	Flashbang = true,
-	PirateJuice = true,
+	StunPellet = true,
 	SuperCannonBall = true,
 	CannonBall = true,
 	Hellball = true,
