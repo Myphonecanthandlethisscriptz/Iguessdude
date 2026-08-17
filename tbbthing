@@ -43,7 +43,6 @@ local validProjectiles = {
 	SpiritBomb = true,
 	Soccerball = true,
 	Cake = true,
-	Coal = true,
 	ZekaRocket = true,
 	TNT = true,
 	Paintnade = true,
@@ -65,7 +64,6 @@ local validProjectiles = {
 	Iceball = true,
 	Bigiceball = true,
 	Fireball = true,
-	Noir = true,
 	BigFireball = true,
 	CesusBomb = true,
 	LilCesuspot = true,
@@ -99,6 +97,7 @@ local deleteProjectiles = {
 	Hand = true,
 	Piano = true,
     MisterSkull = true,
+    Coal = true,
 }
 
 --------------------------------------------------
