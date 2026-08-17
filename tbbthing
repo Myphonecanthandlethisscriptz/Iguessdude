@@ -99,6 +99,7 @@ local deleteProjectiles = {
     MisterSkull = true,
     Coal = true,
     UglyCake = true,
+    Paintball = true,
 }
 
 --------------------------------------------------
