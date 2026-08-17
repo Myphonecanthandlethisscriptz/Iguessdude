@@ -4,7 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 
 --------------------------------------------------
--- FOLDERS
+-- foldr
 --------------------------------------------------
 
 local npcFolder = Workspace:WaitForChild("NPCFolders")
@@ -13,7 +13,7 @@ local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder")
 local projectileFolder = Workspace:WaitForChild("Projectile")
 
 --------------------------------------------------
--- HP BARS
+-- hpbar
 --------------------------------------------------
 
 local hpBars = ReplicatedStorage:WaitForChild("Visuals"):WaitForChild("HPBars")
@@ -23,7 +23,7 @@ local enemyTemplate = hpBars:WaitForChild("Enemy")
 local bossTemplate = hpBars:WaitForChild("Boss")
 
 --------------------------------------------------
--- PROJECTILE LISTS
+-- tp2enemy
 --------------------------------------------------
 
 local validProjectiles = {
