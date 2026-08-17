@@ -227,7 +227,7 @@ local function createHPBar(npc, template, barName)
 end
 
 --------------------------------------------------
--- NPC SETUP
+-- setup
 --------------------------------------------------
 
 local function setupNPC(npc)
@@ -258,7 +258,7 @@ local function setupNPC(npc)
 end
 
 --------------------------------------------------
--- EXISTING NPCS
+-- h
 --------------------------------------------------
 
 for _, object in ipairs(friendlyFolder:GetDescendants()) do
@@ -276,7 +276,7 @@ for _, object in ipairs(enemyFolder:GetDescendants()) do
 end
 
 --------------------------------------------------
--- NEW NPCS
+-- new
 --------------------------------------------------
 
 friendlyFolder.DescendantAdded:Connect(function(object)
@@ -304,14 +304,14 @@ CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
 end)
 
 --------------------------------------------------
--- PROJECTILE SYSTEM
+-- systum
 --------------------------------------------------
 
 local projectileList = {}
 local bodyAngularList = {}
 
 --------------------------------------------------
--- GET ROOT
+-- roo
 --------------------------------------------------
 
 local function getProjectileRoot(obj)
@@ -330,7 +330,7 @@ local function getProjectileRoot(obj)
 	return obj:FindFirstChildWhichIsA("BasePart", true)
 end
 --------------------------------------------------
--- TELEPORT UP PROJECTILES
+-- forprojectilesthatexplode
 --------------------------------------------------
 
 local teleportUpProjectiles = {
