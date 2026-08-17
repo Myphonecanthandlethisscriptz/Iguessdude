@@ -38,7 +38,7 @@ local validProjectiles = {
 	CrossbowArrow = true,
 	Hellrocket = true,
 	BiggerRocket = true,
-	Grenade = true,
+	Grenade = false,
 	Molotov = true,
 	SpiritBomb = true,
 	Soccerball = true,
@@ -337,7 +337,7 @@ local teleportUpProjectiles = {
 	Execnade = true,
 	-- Example:
 	-- Rocket = true,
-	-- Grenade = true,
+  Grenade = true,
 }
 
 task.spawn(function()
