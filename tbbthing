@@ -54,7 +54,7 @@ local validProjectiles = {
 	EpicKunai = true,
 	GameProjectile = true,
 	SuperSpam = true,
-	Execnade = true,
+	Execnade = false,
 	Cesuspot = true,
 	Ghostwalker = true,
 	Bacon = true,
@@ -329,7 +329,39 @@ local function getProjectileRoot(obj)
 
 	return obj:FindFirstChildWhichIsA("BasePart", true)
 end
+--------------------------------------------------
+-- TELEPORT UP PROJECTILES
+--------------------------------------------------
 
+local teleportUpProjectiles = {
+	Execnade = true,
+	-- Example:
+	-- Rocket = true,
+	-- Grenade = true,
+}
+
+task.spawn(function()
+	while true do
+		task.wait(0.1)
+
+		for _, obj in ipairs(projectileFolder:GetDescendants()) do
+			if teleportUpProjectiles[obj.Name] then
+				if obj:IsA("Model") then
+					obj:PivotTo(
+						obj:GetPivot() + Vector3.new(0, 500, 0)
+					)
+				else
+					local root = getProjectileRoot(obj)
+
+					if root then
+						root.CFrame =
+							root.CFrame + Vector3.new(0, 500, 0)
+					end
+				end
+			end
+		end
+	end
+end)
 --------------------------------------------------
 -- GET POSITION
 --------------------------------------------------
