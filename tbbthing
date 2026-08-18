@@ -52,7 +52,6 @@ local validProjectiles = {
 	RainbowBomb = true,
 	EpicKunai = true,
 	GameProjectile = true,
-    SuperSpam = true,
 	Ghostwalker = true,
 	Bacon = true,
 	BigGhostwalker = true,
@@ -102,6 +101,7 @@ local deleteProjectiles = {
     Paintball = true,
     Duck = true,
     EvilDuck = true,
+    GameProjectile
 }
 
 --------------------------------------------------
@@ -340,6 +340,7 @@ local teleportUpProjectiles = {
   Flashbang = true,
   Cesuspot = true,
  RottenEgg = true,
+ SuperSpam
 }
 
 task.spawn(function()
