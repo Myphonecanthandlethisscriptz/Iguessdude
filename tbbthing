@@ -337,6 +337,7 @@ local teleportUpProjectiles = {
 	PirateJuice = true,
   Flashbang = true,
   Cesuspot = true,
+ RottenEgg = true,
 }
 
 task.spawn(function()
