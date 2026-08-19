@@ -101,7 +101,8 @@ local deleteProjectiles = {
     Paintball = true,
     Duck = true,
     EvilDuck = true,
-    GameProjectile
+    GameProjectile = true,
+    Spam = true,
 }
 
 --------------------------------------------------
