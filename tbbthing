@@ -109,9 +109,7 @@ local deleteProjectiles = {
     FireTeapot = true,
 }
 
---------------------------------------------------
--- HP BAR HELPERS
---------------------------------------------------
+-- helpers
 
 local function findChild(parent, name)
 	return parent:FindFirstChild(name, true)
@@ -129,10 +127,9 @@ local function createHPBar(npc, template, barName)
 		return
 	end
 
-	local oldBar = head:FindFirstChild(barName)
-
-	if oldBar then
-		oldBar:Destroy()
+	-- Don't create another bar if one already exists
+	if head:FindFirstChild(barName) then
+		return
 	end
 
 	local hpBar = template:Clone()
@@ -156,6 +153,7 @@ local function createHPBar(npc, template, barName)
 	local originalYScale = bar.Size.Y.Scale
 	local originalYOffset = bar.Size.Y.Offset
 
+	-- Shrink from the left
 	bar.AnchorPoint = Vector2.new(0, bar.AnchorPoint.Y)
 
 	bar.Position = UDim2.new(
@@ -230,6 +228,118 @@ local function createHPBar(npc, template, barName)
 		end
 	end)
 end
+
+--------------------------------------------------
+-- SETUP NPC
+--------------------------------------------------
+
+local function setupNPC(npc)
+	if not npc:IsA("Model") then
+		return
+	end
+
+	local humanoid = npc:FindFirstChildOfClass("Humanoid")
+
+	if not humanoid then
+		return
+	end
+
+	-- Boss
+	if CollectionService:HasTag(npc, "Boss") then
+		if npc:IsDescendantOf(enemyFolder) then
+			createHPBar(npc, bossTemplate, "BossHPBar")
+		end
+
+		return
+	end
+
+	-- Enemy
+	if npc:IsDescendantOf(enemyFolder) then
+		createHPBar(npc, enemyTemplate, "EnemyHPBar")
+		return
+	end
+
+	-- Friendly
+	if npc:IsDescendantOf(friendlyFolder) then
+		createHPBar(npc, friendlyTemplate, "FriendlyHPBar")
+	end
+end
+
+--------------------------------------------------
+-- INITIAL NPCS
+--------------------------------------------------
+
+for _, object in ipairs(friendlyFolder:GetDescendants()) do
+	if object:IsA("Model")
+		and object:FindFirstChildOfClass("Humanoid") then
+
+		task.spawn(setupNPC, object)
+	end
+end
+
+for _, object in ipairs(enemyFolder:GetDescendants()) do
+	if object:IsA("Model")
+		and object:FindFirstChildOfClass("Humanoid") then
+
+		task.spawn(setupNPC, object)
+	end
+end
+
+--------------------------------------------------
+-- NEW NPC DETECTION
+--------------------------------------------------
+
+friendlyFolder.DescendantAdded:Connect(function(object)
+	task.wait(0.1)
+
+	if object:IsA("Model") then
+		setupNPC(object)
+	end
+end)
+
+enemyFolder.DescendantAdded:Connect(function(object)
+	task.wait(0.1)
+
+	if object:IsA("Model") then
+		setupNPC(object)
+	end
+end)
+
+CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
+	task.wait(0.1)
+
+	if object:IsDescendantOf(enemyFolder) then
+		setupNPC(object)
+	end
+end)
+
+--------------------------------------------------
+-- HP BAR RESCAN EVERY 1 SECOND
+--------------------------------------------------
+
+task.spawn(function()
+	while true do
+		task.wait(1)
+
+		-- Check friendly NPCs
+		for _, object in ipairs(friendlyFolder:GetDescendants()) do
+			if object:IsA("Model")
+				and object:FindFirstChildOfClass("Humanoid") then
+
+				setupNPC(object)
+			end
+		end
+
+		-- Check enemy NPCs
+		for _, object in ipairs(enemyFolder:GetDescendants()) do
+			if object:IsA("Model")
+				and object:FindFirstChildOfClass("Humanoid") then
+
+				setupNPC(object)
+			end
+		end
+	end
+end)
 
 --------------------------------------------------
 -- setup
