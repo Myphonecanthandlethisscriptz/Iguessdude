@@ -101,6 +101,7 @@ local deleteProjectiles = {
     UglyCake = true,
     Paintball = true,
     Duck = true,
+    CrossbowArrow = true,
     EvilDuck = true,
     GameProjectile = true,
     CoalFist = true,
