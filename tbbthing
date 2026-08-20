@@ -58,8 +58,8 @@ local validProjectiles = {
 	BloodArrow = true,
 	SorcusBlade = true,
 	ThrowingAxe = true,
-	FireTeapot = true,
-	Teapot = true,
+	FireTeapot = false,
+	Teapot = false,
 	Iceball = true,
 	Bigiceball = true,
 	Fireball = true,
@@ -104,6 +104,8 @@ local deleteProjectiles = {
     EvilDuck = true,
     GameProjectile = true,
     CoalFist = true,
+    Teapot = true,
+    FireTeapot = true,
 }
 
 --------------------------------------------------
