@@ -72,6 +72,7 @@ local validProjectiles = {
 	CrimsonBall = true,
 	Banana = true,
     Cola = true,
+    Spam = true,
 }
 
 local deleteProjectiles = {
@@ -102,7 +103,7 @@ local deleteProjectiles = {
     Duck = true,
     EvilDuck = true,
     GameProjectile = true,
-    Spam = true,
+    CoalFist = true,
 }
 
 --------------------------------------------------
