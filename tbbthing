@@ -42,13 +42,13 @@ local deleteProjectiles = {
 	StunPellet = true, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
 	Coal = true, UglyCake = true, Paintball = true, Duck = false,
-	CrossbowArrow = true, EvilDuck = true, CoalFist = true, Teapot = false,
-	FireTeapot = false,
+	CrossbowArrow = true, EvilDuck = true, CoalFist = true, Teapot = true,
+	FireTeapot = true,
 }
 
 local teleportUpProjectiles = {
 	Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
-	Cesuspot = true, RottenEgg = true, SuperSpam = true,
+	Cesuspot = true, RottenEgg = true, SuperSpam = true, LabTable = true,
 }
 
 local projectileList = {}
