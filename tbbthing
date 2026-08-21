@@ -32,7 +32,7 @@ local validProjectiles = {
 	BloodArrow = true, SorcusBlade = true, ThrowingAxe = true, Iceball = true,
 	Bigiceball = true, Fireball = true, BigFireball = true, CesusBomb = true,
 	LilCesuspot = true, BloodStone = true, BloodCrystal = true, TumorePellet = true,
-	CrimsonBall = true, Banana = true, Cola = true, Spam = true,
+	CrimsonBall = true, Banana = true, Cola = true, Spam = true, SorcusEgg = true,
 }
 
 local deleteProjectiles = {
@@ -41,7 +41,7 @@ local deleteProjectiles = {
 	Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
 	StunPellet = true, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
-	Coal = true, UglyCake = true, Paintball = true, Duck = true,
+	Coal = true, UglyCake = true, Paintball = true, Duck = false,
 	CrossbowArrow = true, EvilDuck = true, CoalFist = true, Teapot = false,
 	FireTeapot = false,
 }
