@@ -48,7 +48,7 @@ local deleteProjectiles = {
 
 local teleportUpProjectiles = {
 	Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
-	Cesuspot = true, RottenEgg = true, SuperSpam = true, LabTable = true,
+	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true,
 }
 
 local projectileList = {}
