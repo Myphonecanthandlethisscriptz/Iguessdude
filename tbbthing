@@ -39,7 +39,7 @@ local deleteProjectiles = {
 	Hyperlaser = true, Ghostwalker = true, BigRocket = true, SpiritBomb = true,
 	SorcusBlade = true, GameProjectile = true, RainbowBomb = true, GrandPiano = true,
 	Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
-	StunPellet = false, SuperCannonBall = true, CannonBall = true, Hellball = true,
+	StunPellet = true,, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
 	Coal = true, UglyCake = true, Paintball = true, Duck = true,
 	CrossbowArrow = true, EvilDuck = true, CoalFist = true, Teapot = false,
