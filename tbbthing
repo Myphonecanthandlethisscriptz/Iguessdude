@@ -90,14 +90,17 @@ local function createHPBar(npc, template, barName)
 	end
 
 	if not humanoid or not head then return end
-	if head:FindFirstChild(barName) then return end -- Avoid duplicate bars
+	if head:FindFirstChild(barName) then return end
 
 	local hpBar = template:Clone()
 	hpBar.Name = barName
 
+	-- Locate and configure the BillboardGui instance
 	local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
 	if billboard then
 		billboard.Adornee = head
+		billboard.AlwaysOnTop = true
+		billboard.StudsOffset = Vector3.new(0, 2.5, 0)
 		billboard.Enabled = true
 	end
 
@@ -141,7 +144,6 @@ local function createHPBar(npc, template, barName)
 
 	update()
 
-	-- Safe connection cleanup
 	local connections = {}
 	
 	local function cleanup()
@@ -223,7 +225,6 @@ end
 -- INITIALIZATION & LISTENERS
 --------------------------------------------------
 
--- Scanning helper that handles delayed loading
 local function scanForNPCs(folder)
 	for _, desc in ipairs(folder:GetDescendants()) do
 		if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then
@@ -235,7 +236,6 @@ end
 scanForNPCs(friendlyFolder)
 scanForNPCs(enemyFolder)
 
--- DescendantAdded listener with short delays for late-spawning parts
 friendlyFolder.DescendantAdded:Connect(function(desc)
 	if desc:IsA("Model") or desc:IsA("Humanoid") then
 		task.delay(0.1, function()
@@ -262,7 +262,6 @@ CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
 	end)
 end)
 
--- Process Existing and Incoming Projectiles
 local function processProjectile(obj)
 	if deleteProjectiles[obj.Name] then
 		obj:Destroy()
@@ -277,7 +276,6 @@ end
 
 projectileFolder.DescendantAdded:Connect(processProjectile)
 
--- Teleport Up Loop
 task.spawn(function()
 	while true do
 		task.wait(0.2)
