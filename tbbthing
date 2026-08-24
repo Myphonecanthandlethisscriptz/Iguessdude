@@ -83,7 +83,7 @@ local function createHPBar(npc, template, barName)
 
 	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
 	
-	-- Safely locate the real Head BasePart (ignoring Motor6D Joints named 'Head')
+	-- Target the real Head BasePart
 	local head = npc:FindFirstChild("Head")
 	if not (head and head:IsA("BasePart")) then
 		head = npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
@@ -95,12 +95,11 @@ local function createHPBar(npc, template, barName)
 	local hpBar = template:Clone()
 	hpBar.Name = barName
 
-	-- Locate and configure the BillboardGui instance
 	local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
 	if billboard then
 		billboard.Adornee = head
 		billboard.AlwaysOnTop = true
-		billboard.StudsOffset = Vector3.new(0, 2.5, 0)
+		billboard.StudsOffset = Vector3.new(0, 0, 0) -- Removed offset
 		billboard.Enabled = true
 	end
 
