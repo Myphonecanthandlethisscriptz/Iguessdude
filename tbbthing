@@ -5,7 +5,7 @@ local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 
 --------------------------------------------------
--- FOLDERS & REFERENCES (Safe Loading)
+-- FOLDERS & REFERENCES
 --------------------------------------------------
 
 local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
@@ -19,7 +19,7 @@ local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
 if not enemyFolder or not friendlyFolder or not projectileFolder then
-	warn("[Error] Could not find required subfolders (EnemyFolder, FriendlyFolder, or Projectile).")
+	warn("[Error] Could not find required subfolders.")
 	return
 end
 
@@ -31,19 +31,20 @@ local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
 local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
--- CONFIGURATIONS (Hash Lookups)
+-- CONFIGURATIONS
 --------------------------------------------------
 
 local validProjectiles = {
-	Pellet = true, Superball = true, BigHellball = true, Cupcake = true, Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true, 
+	Pellet = true, Superball = true, BigHellball = true, Cupcake = true,
+	Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true,
 	Hellrocket = true, BiggerRocket = true, Grenade = true, Molotov = true,
-	SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true, 
-	TNT = true, Paintnade = true, Arrow = true, WoodArrow = true, 
-	LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true, 
-	Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true, 
-	Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true, 
-	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true, 
-	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true, 
+	SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true,
+	TNT = true, Paintnade = true, Arrow = true, WoodArrow = true,
+	LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true,
+	Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true,
+	Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true,
+	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
+	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
 	Spam = true, SorcusEgg = true, BigIceball = true,
 }
 
@@ -53,8 +54,8 @@ local deleteProjectiles = {
 	Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
 	StunPellet = true, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
-	Coal = true, UglyCake = true, Paintball = true, CrossbowArrow = true, 
-	EvilDuck = true, CoalFist = true, Teapot = true, FireTeapot = true, 
+	Coal = true, UglyCake = true, Paintball = true, CrossbowArrow = true,
+	EvilDuck = true, CoalFist = true, Teapot = true, FireTeapot = true,
 	ThrowingAxe = true, GlowThrowingAxe = true,
 }
 
@@ -63,7 +64,7 @@ local teleportUpProjectiles = {
 	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true,
 }
 
-local activeProjectiles = {} -- [Instance] = PrimaryBasePart
+local activeProjectiles = {}
 
 --------------------------------------------------
 -- HELPER FUNCTIONS
