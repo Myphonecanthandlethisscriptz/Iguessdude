@@ -1,6 +1,25 @@
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+-- Safely wait for the main folder to prevent 'nil' errors on Line 11/12
+local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
+
+if not npcFolder then
+    warn("[Error] 'NPCFolders' was not found in Workspace.")
+    return
+end
+
+-- Safely fetch line 12 folder
+local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
+
+if not friendlyFolder then
+    warn("[Error] 'FriendlyFolder' was not found inside NPCFolders.")
+    return
+end
+
+print("[Success] Found FriendlyFolder successfully:", friendlyFolder:GetFullName())
+
+-- Add the rest of your original script logic below this line
 local CollectionService = game:GetService("CollectionService")
 
 --------------------------------------------------
