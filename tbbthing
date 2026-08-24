@@ -23,15 +23,15 @@ local bossTemplate = hpBars:WaitForChild("Boss")
 
 local validProjectiles = {
 	Pellet = true, Superball = true, BigHellball = true, Cupcake = true,
-	Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true, 
-	Hellrocket = true, BiggerRocket = true, Grenade = true, Molotov = true, 
-	SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true, 
-	TNT = true, Paintnade = true, Arrow = true, WoodArrow = true, 
-	LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true, 
-	Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true, 
-	Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true, 
-	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true, 
-	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true, 
+	Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true, 
+	Hellrocket = true, BiggerRocket = true, Grenade = true, Molotov = true, 
+	SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true, 
+	TNT = true, Paintnade = true, Arrow = true, WoodArrow = true, 
+	LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true, 
+	Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true, 
+	Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true, 
+	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true, 
+	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true, 
 	Spam = true, SorcusEgg = true, BigIceball = true,
 }
 
@@ -41,8 +41,8 @@ local deleteProjectiles = {
 	Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
 	StunPellet = true, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
-	Coal = true, UglyCake = true, Paintball = true, CrossbowArrow = true, 
-	EvilDuck = true, CoalFist = true, Teapot = true, FireTeapot = true, 
+	Coal = true, UglyCake = true, Paintball = true, CrossbowArrow = true, 
+	EvilDuck = true, CoalFist = true, Teapot = true, FireTeapot = true, 
 	ThrowingAxe = true, GlowThrowingAxe = true,
 }
 
@@ -81,19 +81,24 @@ end
 local function createHPBar(npc, template, barName)
 	if not npc:IsA("Model") then return end
 
-	local humanoid = npc:FindFirstChildOfClass("Humanoid")
-	local head = npc:FindFirstChild("Head", true)
-
-	if not humanoid or not head or head:FindFirstChild(barName) then
-		return
+	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
+	
+	-- Safely locate the real Head BasePart (ignoring Motor6D Joints named 'Head')
+	local head = npc:FindFirstChild("Head")
+	if not (head and head:IsA("BasePart")) then
+		head = npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
 	end
+
+	if not humanoid or not head then return end
+	if head:FindFirstChild(barName) then return end -- Avoid duplicate bars
 
 	local hpBar = template:Clone()
 	hpBar.Name = barName
 
-	if hpBar:IsA("BillboardGui") then
-		hpBar.Adornee = head
-		hpBar.Enabled = true
+	local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
+	if billboard then
+		billboard.Adornee = head
+		billboard.Enabled = true
 	end
 
 	local bar = hpBar:FindFirstChild("Bar", true)
@@ -125,18 +130,18 @@ local function createHPBar(npc, template, barName)
 
 		if health <= 0 or maxHealth <= 0 then
 			bar.Size = UDim2.new(0, 0, originalYScale, originalYOffset)
-			if hpBar:IsA("BillboardGui") then hpBar.Enabled = false end
+			if billboard then billboard.Enabled = false end
 			return
 		end
 
-		if hpBar:IsA("BillboardGui") then hpBar.Enabled = true end
+		if billboard then billboard.Enabled = true end
 		local percentage = math.clamp(health / maxHealth, 0, 1)
 		bar.Size = UDim2.new(percentage, 0, originalYScale, originalYOffset)
 	end
 
 	update()
 
-	-- Clean connection management
+	-- Safe connection cleanup
 	local connections = {}
 	
 	local function cleanup()
@@ -153,9 +158,7 @@ local function createHPBar(npc, template, barName)
 end
 
 local function setupNPC(npc)
-	if not npc:IsA("Model") or not npc:FindFirstChildOfClass("Humanoid") then
-		return
-	end
+	if not npc:IsA("Model") then return end
 
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
 		createHPBar(npc, bossTemplate, "BossHPBar")
@@ -179,7 +182,6 @@ local function handleProjectile(obj)
 	activeProjectiles[obj] = root
 	removeTouchInterests(obj)
 
-	-- Spin Effect using modern AngularVelocity
 	local attachment = root:FindFirstChild("SpinAttachment") or Instance.new("Attachment")
 	attachment.Name = "SpinAttachment"
 	attachment.Parent = root
@@ -189,10 +191,9 @@ local function handleProjectile(obj)
 	angularVel.Attachment0 = attachment
 	angularVel.MaxTorque = 1000000
 	angularVel.AngularVelocity = Vector3.new(-40, 0, 0)
-	angularVel.RelativeTo = Enum.RelativeTo.World -- FIX: Corrected Enum reference
+	angularVel.RelativeTo = Enum.RelativeTo.World
 	angularVel.Parent = root
 
-	-- Clean up memory on destruction
 	obj.Destroying:Once(function()
 		activeProjectiles[obj] = nil
 	end)
@@ -222,24 +223,43 @@ end
 -- INITIALIZATION & LISTENERS
 --------------------------------------------------
 
--- NPC Listeners
-local function bindFolder(folder)
-	for _, child in ipairs(folder:GetChildren()) do
-		task.spawn(setupNPC, child)
+-- Scanning helper that handles delayed loading
+local function scanForNPCs(folder)
+	for _, desc in ipairs(folder:GetDescendants()) do
+		if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then
+			task.spawn(setupNPC, desc)
+		end
 	end
-
-	folder.ChildAdded:Connect(function(child)
-		task.defer(setupNPC, child)
-	end)
 end
 
-bindFolder(friendlyFolder)
-bindFolder(enemyFolder)
+scanForNPCs(friendlyFolder)
+scanForNPCs(enemyFolder)
+
+-- DescendantAdded listener with short delays for late-spawning parts
+friendlyFolder.DescendantAdded:Connect(function(desc)
+	if desc:IsA("Model") or desc:IsA("Humanoid") then
+		task.delay(0.1, function()
+			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
+			if model then setupNPC(model) end
+		end)
+	end
+end)
+
+enemyFolder.DescendantAdded:Connect(function(desc)
+	if desc:IsA("Model") or desc:IsA("Humanoid") then
+		task.delay(0.1, function()
+			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
+			if model then setupNPC(model) end
+		end)
+	end
+end)
 
 CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
-	if object:IsDescendantOf(enemyFolder) then
-		setupNPC(object)
-	end
+	task.delay(0.1, function()
+		if object:IsDescendantOf(enemyFolder) then
+			setupNPC(object)
+		end
+	end)
 end)
 
 -- Process Existing and Incoming Projectiles
@@ -255,7 +275,6 @@ for _, obj in ipairs(projectileFolder:GetDescendants()) do
 	processProjectile(obj)
 end
 
--- Used DescendantAdded to safely catch nested projectile models
 projectileFolder.DescendantAdded:Connect(processProjectile)
 
 -- Teleport Up Loop
