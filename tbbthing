@@ -1,40 +1,34 @@
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
-
--- Safely wait for the main folder to prevent 'nil' errors on Line 11/12
-local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
-
-if not npcFolder then
-    warn("[Error] 'NPCFolders' was not found in Workspace.")
-    return
-end
-
--- Safely fetch line 12 folder
-local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
-
-if not friendlyFolder then
-    warn("[Error] 'FriendlyFolder' was not found inside NPCFolders.")
-    return
-end
-
-print("[Success] Found FriendlyFolder successfully:", friendlyFolder:GetFullName())
-
--- Add the rest of your original script logic below this line
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 
 --------------------------------------------------
--- FOLDERS & REFERENCES
+-- FOLDERS & REFERENCES (Safe Loading)
 --------------------------------------------------
 
-local npcFolder = Workspace:WaitForChild("NPCFolders")
-local enemyFolder = npcFolder:WaitForChild("EnemyFolder")
-local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder")
-local projectileFolder = Workspace:WaitForChild("Projectile")
+local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
+if not npcFolder then
+	warn("[Error] 'NPCFolders' missing from Workspace!")
+	return
+end
 
-local hpBars = ReplicatedStorage:WaitForChild("Visuals"):WaitForChild("HPBars")
-local friendlyTemplate = hpBars:WaitForChild("Friendly")
-local enemyTemplate = hpBars:WaitForChild("Enemy")
-local bossTemplate = hpBars:WaitForChild("Boss")
+local enemyFolder = npcFolder:WaitForChild("EnemyFolder", 10)
+local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
+local projectileFolder = Workspace:WaitForChild("Projectile", 10)
+
+if not enemyFolder or not friendlyFolder or not projectileFolder then
+	warn("[Error] Could not find required subfolders (EnemyFolder, FriendlyFolder, or Projectile).")
+	return
+end
+
+local visualsFolder = ReplicatedStorage:WaitForChild("Visuals", 10)
+local hpBars = visualsFolder and visualsFolder:WaitForChild("HPBars", 10)
+
+local friendlyTemplate = hpBars and hpBars:WaitForChild("Friendly", 5)
+local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
+local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
 -- CONFIGURATIONS (Hash Lookups)
@@ -98,11 +92,10 @@ end
 --------------------------------------------------
 
 local function createHPBar(npc, template, barName)
-	if not npc:IsA("Model") then return end
+	if not template or not npc:IsA("Model") then return end
 
 	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
 	
-	-- Target the real Head BasePart
 	local head = npc:FindFirstChild("Head")
 	if not (head and head:IsA("BasePart")) then
 		head = npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
@@ -118,7 +111,7 @@ local function createHPBar(npc, template, barName)
 	if billboard then
 		billboard.Adornee = head
 		billboard.AlwaysOnTop = true
-		billboard.StudsOffset = Vector3.new(0, 0, 0) -- Removed offset
+		billboard.StudsOffset = Vector3.new(0, 0, 0)
 		billboard.Enabled = true
 	end
 
