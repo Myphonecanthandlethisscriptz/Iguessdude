@@ -23,7 +23,7 @@ local bossTemplate = hpBars:WaitForChild("Boss")
 
 local validProjectiles = {
 	Pellet = true, Superball = true, BigHellball = true, Cupcake = true,
-    Rocket = true, BigRocket = true, Paintball = true,q
+    Rocket = true, BigRocket = true, Paintball = true,
 	CrossbowArrow = true, Hellrocket = true, BiggerRocket = true, Grenade = true,
 	Molotov = true, SpiritBomb = true, Soccerball = true, Cake = true,
 	ZekaRocket = true, TNT = true, Paintnade = true, Arrow = true,
