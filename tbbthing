@@ -78,6 +78,7 @@ local ignoredNPCs = {
 	["Dual Windforce"] = true,
 	["Reinbo Soul"] = true,
 	["Chronos"] = true,
+    ["Chardy"] = true,
 }
 
 local activeProjectiles = {}
