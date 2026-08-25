@@ -64,6 +64,12 @@ local teleportUpProjectiles = {
 	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true,
 }
 
+-- Add enemy model names here to ignore them from projectile targeting
+local ignoredNPCs = {
+	["SampleEnemyName"] = true,
+	["Flower"] = true,
+}
+
 local activeProjectiles = {}
 
 --------------------------------------------------
@@ -220,7 +226,9 @@ local function getNearestNPC(position)
 		local humanoid = npc:FindFirstChildOfClass("Humanoid")
 		local root = npc:FindFirstChild("HumanoidRootPart")
 
-		if humanoid and humanoid.Health > 0 and root and not npc:GetAttribute("Flying") then
+		local isIgnored = ignoredNPCs[npc.Name] or npc:GetAttribute("Ignored")
+
+		if humanoid and humanoid.Health > 0 and root and not isIgnored then
 			local distance = (root.Position - position).Magnitude
 			if distance < nearestDistance then
 				nearestDistance = distance
