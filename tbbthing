@@ -274,23 +274,29 @@ CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
 end)
 
 local function processProjectile(obj)
-	if deleteProjectiles[obj.Name] then
-		obj:Destroy()
-	elseif validProjectiles[obj.Name] then
-		handleProjectile(obj)
-	end
+	task.defer(function()
+		if not obj or not obj.Parent then return end
+
+		if deleteProjectiles[obj.Name] then
+			obj:Destroy()
+		elseif validProjectiles[obj.Name] then
+			handleProjectile(obj)
+		end
+	end)
 end
 
-for _, obj in ipairs(projectileFolder:GetDescendants()) do
+-- Process existing projectiles in folder
+for _, obj in ipairs(projectileFolder:GetChildren()) do
 	processProjectile(obj)
 end
 
-projectileFolder.DescendantAdded:Connect(processProjectile)
+-- Listen for top-level projectiles added dynamically
+projectileFolder.ChildAdded:Connect(processProjectile)
 
 task.spawn(function()
 	while true do
 		task.wait(0.2)
-		for _, obj in ipairs(projectileFolder:GetDescendants()) do
+		for _, obj in ipairs(projectileFolder:GetChildren()) do
 			if teleportUpProjectiles[obj.Name] then
 				if obj:IsA("Model") then
 					obj:PivotTo(obj:GetPivot() + Vector3.new(0, 500, 0))
