@@ -1,5 +1,4 @@
 local Workspace = game:GetService("Workspace")
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
@@ -9,17 +8,17 @@ local CollectionService = game:GetService("CollectionService")
 --------------------------------------------------
 
 local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
-if not npcFolder then
-	warn("[Error] 'NPCFolders' missing from Workspace!")
-	return
-end
+if not npcFolder then warn("[Error] 'NPCFolders' missing!"); return end
 
 local enemyFolder = npcFolder:WaitForChild("EnemyFolder", 10)
 local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
+local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
+local redBase = baseFolder and baseFolder:FindFirstChild("Red Base")
+
 if not enemyFolder or not friendlyFolder or not projectileFolder then
-	warn("[Error] Could not find required subfolders.")
+	warn("[Error] Subfolders missing.")
 	return
 end
 
@@ -101,45 +100,43 @@ local function removeTouchInterests(obj)
 end
 
 --------------------------------------------------
--- DYNAMIC TARGET RESOLUTION
+-- TARGETING (OPTIMIZED - NO CPU LAG)
 --------------------------------------------------
 
 local function getRedBaseTarget()
-	local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
-	if not baseFolder then return nil end
-
-	local redBase = baseFolder:FindFirstChild("Red Base")
+	if not redBase then
+		local bFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
+		redBase = bFolder and bFolder:FindFirstChild("Red Base")
+	end
 	if not redBase then return nil end
 
 	return redBase:FindFirstChild("MainHitbox") 
 		or redBase:FindFirstChild("Hitbox") 
-		or (redBase:IsA("Model") and redBase.PrimaryPart) 
-		or redBase:FindFirstChildWhichIsA("BasePart", true)
+		or (redBase:IsA("Model") and redBase.PrimaryPart)
 end
 
 local function getNearestTarget(position)
 	local nearestPart = nil
 	local nearestDistance = math.huge
 
-	-- Dynamically check all Model instances inside enemyFolder
-	for _, desc in ipairs(enemyFolder:GetDescendants()) do
-		if desc:IsA("Model") then
-			local humanoid = desc:FindFirstChildOfClass("Humanoid")
-			local root = desc:FindFirstChild("HumanoidRootPart") or desc.PrimaryPart
-
-			local isIgnored = ignoredNPCs[desc.Name] or desc:GetAttribute("Ignored")
+	-- Only loop top-level children of EnemyFolder (NOT GetDescendants)
+	for _, npc in ipairs(enemyFolder:GetChildren()) do
+		if npc:IsA("Model") then
+			local humanoid = npc:FindFirstChildOfClass("Humanoid")
+			local root = npc:FindFirstChild("HumanoidRootPart") or npc.PrimaryPart
+			local isIgnored = ignoredNPCs[npc.Name] or npc:GetAttribute("Ignored")
 
 			if humanoid and humanoid.Health > 0 and root and not isIgnored then
 				local distance = (root.Position - position).Magnitude
 				if distance < nearestDistance then
 					nearestDistance = distance
-					nearestPart = desc:FindFirstChild("Hitbox") or root
+					nearestPart = npc:FindFirstChild("Hitbox") or root
 				end
 			end
 		end
 	end
 
-	-- Return nearest enemy hitbox if found; otherwise, default to Red Base MainHitbox
+	-- If enemies exist, target the closest one. Otherwise, default to Red Base.
 	if nearestPart then
 		return nearestPart
 	end
@@ -175,7 +172,6 @@ local function createHPBar(npc, template, barName)
 	local textLabel = hpBar:FindFirstChild("TextLabel", true)
 
 	if not bar then
-		warn("HP bar missing 'Bar':", template:GetFullName())
 		hpBar:Destroy()
 		return
 	end
@@ -190,7 +186,6 @@ local function createHPBar(npc, template, barName)
 
 	local function update()
 		if not humanoid or not humanoid.Parent then return end
-
 		local health = math.max(humanoid.Health, 0)
 		local maxHealth = humanoid.MaxHealth
 
@@ -213,9 +208,7 @@ local function createHPBar(npc, template, barName)
 
 	local connections = {}
 	local function cleanup()
-		for _, conn in ipairs(connections) do
-			conn:Disconnect()
-		end
+		for _, conn in ipairs(connections) do conn:Disconnect() end
 		table.clear(connections)
 		if hpBar then hpBar:Destroy() end
 	end
@@ -238,7 +231,7 @@ local function setupNPC(npc)
 end
 
 --------------------------------------------------
--- PROJECTILE LOGIC
+-- PROJECTILE HANDLING
 --------------------------------------------------
 
 local function handleProjectile(obj)
@@ -267,106 +260,41 @@ local function handleProjectile(obj)
 	end)
 end
 
---------------------------------------------------
--- INITIALIZATION & LISTENERS
---------------------------------------------------
+local function processProjectile(obj)
+	if not obj or not obj.Parent then return end
 
-local function scanForNPCs(folder)
-	for _, desc in ipairs(folder:GetDescendants()) do
-		if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then
-			task.spawn(setupNPC, desc)
-		end
+	if deleteProjectiles[obj.Name] then
+		obj:Destroy()
+	elseif validProjectiles[obj.Name] then
+		handleProjectile(obj)
 	end
 end
 
-scanForNPCs(friendlyFolder)
-scanForNPCs(enemyFolder)
+--------------------------------------------------
+-- LISTENERS
+--------------------------------------------------
+
+for _, desc in ipairs(friendlyFolder:GetDescendants()) do
+	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then setupNPC(desc) end
+end
+for _, desc in ipairs(enemyFolder:GetDescendants()) do
+	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then setupNPC(desc) end
+end
 
 friendlyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") or desc:IsA("Humanoid") then
-		task.delay(0.1, function()
-			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
-			if model then setupNPC(model) end
-		end)
-	end
+	if desc:IsA("Model") then setupNPC(desc) end
 end)
-
 enemyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") or desc:IsA("Humanoid") then
-		task.delay(0.1, function()
-			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
-			if model then setupNPC(model) end
-		end)
-	end
+	if desc:IsA("Model") then setupNPC(desc) end
 end)
-
-CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
-	task.delay(0.1, function()
-		if object:IsDescendantOf(enemyFolder) then
-			setupNPC(object)
-		end
-	end)
-end)
-
-local function processProjectile(obj)
-	task.defer(function()
-		if not obj or not obj.Parent then return end
-
-		-- Retry up to 5 times (0.25s) if parts haven't loaded yet into newly spawned projectile
-		local root = nil
-		for _ = 1, 5 do
-			root = getProjectileRoot(obj)
-			if root then break end
-			task.wait(0.05)
-		end
-
-		if not root then return end
-
-		if deleteProjectiles[obj.Name] then
-			obj:Destroy()
-		elseif validProjectiles[obj.Name] then
-			-- Anchor base parts so physics engine won't interfere during CFrame teleporting
-			if obj:IsA("BasePart") then
-				obj.Anchored = true
-			elseif obj:IsA("Model") then
-				for _, part in ipairs(obj:GetDescendants()) do
-					if part:IsA("BasePart") then
-						part.Anchored = true
-					end
-				end
-			end
-
-			handleProjectile(obj)
-		end
-	end)
-end
 
 for _, obj in ipairs(projectileFolder:GetChildren()) do
 	processProjectile(obj)
 end
-
 projectileFolder.ChildAdded:Connect(processProjectile)
 
-task.spawn(function()
-	while true do
-		task.wait(0.2)
-		for _, obj in ipairs(projectileFolder:GetChildren()) do
-			if teleportUpProjectiles[obj.Name] then
-				if obj:IsA("Model") then
-					obj:PivotTo(obj:GetPivot() + Vector3.new(0, 500, 0))
-				else
-					local root = getProjectileRoot(obj)
-					if root then
-						root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
-					end
-				end
-			end
-		end
-	end
-end)
-
 --------------------------------------------------
--- MAIN ENGINE LOOP
+-- ENGINE LOOP (SAFE HEARBEAT)
 --------------------------------------------------
 
 RunService.Heartbeat:Connect(function()
@@ -379,12 +307,10 @@ RunService.Heartbeat:Connect(function()
 		local targetPart = getNearestTarget(root.Position)
 
 		if targetPart and targetPart:IsA("BasePart") then
-			if not targetPart.Parent then continue end
-
 			if projectile:IsA("Model") then
 				projectile:PivotTo(targetPart.CFrame)
-			elseif projectile:IsA("BasePart") then
-				projectile.CFrame = targetPart.CFrame
+			else
+				root.CFrame = targetPart.CFrame
 			end
 		end
 	end
