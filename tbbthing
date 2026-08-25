@@ -111,9 +111,9 @@ local function getRedBaseTarget()
 	local redBase = baseFolder:FindFirstChild("Red Base")
 	if not redBase then return nil end
 
-	return redBase:FindFirstChild("MainHitbox") 
-		or redBase:FindFirstChild("Hitbox") 
-		or (redBase:IsA("Model") and redBase.PrimaryPart) 
+	return redBase:FindFirstChild("MainHitbox") 
+		or redBase:FindFirstChild("Hitbox") 
+		or (redBase:IsA("Model") and redBase.PrimaryPart) 
 		or redBase:FindFirstChildWhichIsA("BasePart", true)
 end
 
@@ -121,7 +121,7 @@ local function getNearestTarget(position)
 	local nearestPart = nil
 	local nearestDistance = math.huge
 
-	-- Dynamically check all Model instances in enemyFolder
+	-- Dynamically check all Model instances inside enemyFolder
 	for _, desc in ipairs(enemyFolder:GetDescendants()) do
 		if desc:IsA("Model") then
 			local humanoid = desc:FindFirstChildOfClass("Humanoid")
@@ -139,7 +139,7 @@ local function getNearestTarget(position)
 		end
 	end
 
-	-- Return enemy target part if found; otherwise, fall back to Red Base MainHitbox
+	-- Return nearest enemy hitbox if found; otherwise, default to Red Base MainHitbox
 	if nearestPart then
 		return nearestPart
 	end
@@ -312,9 +312,30 @@ local function processProjectile(obj)
 	task.defer(function()
 		if not obj or not obj.Parent then return end
 
+		-- Retry up to 5 times (0.25s) if parts haven't loaded yet into newly spawned projectile
+		local root = nil
+		for _ = 1, 5 do
+			root = getProjectileRoot(obj)
+			if root then break end
+			task.wait(0.05)
+		end
+
+		if not root then return end
+
 		if deleteProjectiles[obj.Name] then
 			obj:Destroy()
 		elseif validProjectiles[obj.Name] then
+			-- Anchor base parts so physics engine won't interfere during CFrame teleporting
+			if obj:IsA("BasePart") then
+				obj.Anchored = true
+			elseif obj:IsA("Model") then
+				for _, part in ipairs(obj:GetDescendants()) do
+					if part:IsA("BasePart") then
+						part.Anchored = true
+					end
+				end
+			end
+
 			handleProjectile(obj)
 		end
 	end)
@@ -350,7 +371,7 @@ end)
 
 RunService.Heartbeat:Connect(function()
 	for projectile, root in pairs(activeProjectiles) do
-		if not projectile.Parent or not root.Parent then
+		if not projectile or not projectile.Parent or not root or not root.Parent then
 			activeProjectiles[projectile] = nil
 			continue
 		end
@@ -358,10 +379,12 @@ RunService.Heartbeat:Connect(function()
 		local targetPart = getNearestTarget(root.Position)
 
 		if targetPart and targetPart:IsA("BasePart") then
+			if not targetPart.Parent then continue end
+
 			if projectile:IsA("Model") then
 				projectile:PivotTo(targetPart.CFrame)
-			else
-				root.CFrame = targetPart.CFrame
+			elseif projectile:IsA("BasePart") then
+				projectile.CFrame = targetPart.CFrame
 			end
 		end
 	end
