@@ -73,6 +73,7 @@ local ignoredNPCs = {
     ["Airhead"] = true,
     ["Skittle"] = true,
     ["Dual Windforce"] = true,
+    ["Reinbo Soul"] = true,
 }
 
 local activeProjectiles = {}
