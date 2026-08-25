@@ -111,8 +111,8 @@ local function getRedBaseTarget()
 	end
 	if not redBase then return nil end
 
-	return redBase:FindFirstChild("MainHitbox") 
-		or redBase:FindFirstChild("Hitbox") 
+	return redBase:FindFirstChild("MainHitbox")
+		or redBase:FindFirstChild("Hitbox")
 		or (redBase:IsA("Model") and redBase.PrimaryPart)
 end
 
@@ -120,7 +120,6 @@ local function getNearestTarget(position)
 	local nearestPart = nil
 	local nearestDistance = math.huge
 
-	-- Only check top level models in EnemyFolder to prevent lag spikes
 	for _, npc in ipairs(enemyFolder:GetChildren()) do
 		if npc:IsA("Model") then
 			local humanoid = npc:FindFirstChildOfClass("Humanoid")
@@ -278,7 +277,7 @@ for _, desc in ipairs(enemyFolder:GetDescendants()) do
 	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 
--- ChildAdded Scans (RESTORED task.delay to fix HP Bars)
+-- ChildAdded Scans
 friendlyFolder.DescendantAdded:Connect(function(desc)
 	if desc:IsA("Model") or desc:IsA("Humanoid") then
 		task.delay(0.1, function()
@@ -307,7 +306,7 @@ end)
 for _, obj in ipairs(projectileFolder:GetChildren()) do processProjectile(obj) end
 projectileFolder.ChildAdded:Connect(processProjectile)
 
--- Teleport Up Loop (RESTORED)
+-- Teleport Up Loop
 task.spawn(function()
 	while true do
 		task.wait(0.2)
