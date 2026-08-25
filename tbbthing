@@ -18,6 +18,10 @@ local enemyFolder = npcFolder:WaitForChild("EnemyFolder", 10)
 local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
+-- Base Folder & Red Base Reference (From Image)
+local baseFolder = npcFolder:WaitForChild("BaseFolder", 10)
+local redBase = baseFolder and baseFolder:WaitForChild("Red Base", 10)
+
 if not enemyFolder or not friendlyFolder or not projectileFolder then
 	warn("[Error] Could not find required subfolders.")
 	return
@@ -64,17 +68,16 @@ local teleportUpProjectiles = {
 	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
 }
 
--- Add enemy model names here to ignore them from projectile targeting
 local ignoredNPCs = {
 	["Ghostwalker"] = true,
 	["Flower"] = true,
-    ["Judgement"] = true,
-    ["Punishment"] = true,
-    ["Airhead"] = true,
-    ["Skittle"] = true,
-    ["Dual Windforce"] = true,
-    ["Reinbo Soul"] = true,
-    ["Chronos"] = true,
+	["Judgement"] = true,
+	["Punishment"] = true,
+	["Airhead"] = true,
+	["Skittle"] = true,
+	["Dual Windforce"] = true,
+	["Reinbo Soul"] = true,
+	["Chronos"] = true,
 }
 
 local activeProjectiles = {}
@@ -225,10 +228,19 @@ local function handleProjectile(obj)
 	end)
 end
 
-local function getNearestNPC(position)
+-- Helper to get Red Base Hitbox target part
+local function getRedBaseTarget()
+	if not redBase then return nil end
+	return redBase:FindFirstChild("MainHitbox") 
+		or redBase:FindFirstChild("Hitbox") 
+		or redBase.PrimaryPart
+end
+
+local function getNearestTarget(position)
 	local nearestNPC = nil
 	local nearestDistance = math.huge
 
+	-- 1. Search for nearest enemy NPC
 	for _, npc in ipairs(enemyFolder:GetChildren()) do
 		local humanoid = npc:FindFirstChildOfClass("Humanoid")
 		local root = npc:FindFirstChild("HumanoidRootPart")
@@ -244,7 +256,13 @@ local function getNearestNPC(position)
 		end
 	end
 
-	return nearestNPC
+	-- 2. If an enemy NPC is found, return its main targeting part
+	if nearestNPC then
+		return nearestNPC:FindFirstChild("Hitbox") or nearestNPC:FindFirstChild("HumanoidRootPart")
+	end
+
+	-- 3. Fallback: Target Red Base's MainHitbox if no valid enemies remain
+	return getRedBaseTarget()
 end
 
 --------------------------------------------------
@@ -300,12 +318,10 @@ local function processProjectile(obj)
 	end)
 end
 
--- Process existing projectiles in folder
 for _, obj in ipairs(projectileFolder:GetChildren()) do
 	processProjectile(obj)
 end
 
--- Listen for top-level projectiles added dynamically
 projectileFolder.ChildAdded:Connect(processProjectile)
 
 task.spawn(function()
@@ -338,16 +354,13 @@ RunService.Heartbeat:Connect(function()
 		end
 
 		local position = root.Position
-		local target = getNearestNPC(position)
+		local targetPart = getNearestTarget(position)
 
-		if target then
-			local targetPart = target:FindFirstChild("Hitbox") or target:FindFirstChild("HumanoidRootPart")
-			if targetPart and targetPart:IsA("BasePart") then
-				if projectile:IsA("Model") then
-					projectile:PivotTo(targetPart.CFrame)
-				else
-					root.CFrame = targetPart.CFrame
-				end
+		if targetPart and targetPart:IsA("BasePart") then
+			if projectile:IsA("Model") then
+				projectile:PivotTo(targetPart.CFrame)
+			else
+				root.CFrame = targetPart.CFrame
 			end
 		end
 	end
