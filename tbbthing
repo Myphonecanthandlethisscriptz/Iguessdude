@@ -1,4 +1,5 @@
 local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
@@ -100,7 +101,7 @@ local function removeTouchInterests(obj)
 end
 
 --------------------------------------------------
--- TARGETING (OPTIMIZED - NO CPU LAG)
+-- TARGETING (OPTIMIZED)
 --------------------------------------------------
 
 local function getRedBaseTarget()
@@ -119,7 +120,7 @@ local function getNearestTarget(position)
 	local nearestPart = nil
 	local nearestDistance = math.huge
 
-	-- Only loop top-level children of EnemyFolder (NOT GetDescendants)
+	-- Only check top level models in EnemyFolder to prevent lag spikes
 	for _, npc in ipairs(enemyFolder:GetChildren()) do
 		if npc:IsA("Model") then
 			local humanoid = npc:FindFirstChildOfClass("Humanoid")
@@ -136,7 +137,6 @@ local function getNearestTarget(position)
 		end
 	end
 
-	-- If enemies exist, target the closest one. Otherwise, default to Red Base.
 	if nearestPart then
 		return nearestPart
 	end
@@ -177,7 +177,6 @@ local function createHPBar(npc, template, barName)
 	end
 
 	hpBar.Parent = head
-
 	local originalYScale = bar.Size.Y.Scale
 	local originalYOffset = bar.Size.Y.Offset
 
@@ -189,9 +188,7 @@ local function createHPBar(npc, template, barName)
 		local health = math.max(humanoid.Health, 0)
 		local maxHealth = humanoid.MaxHealth
 
-		if textLabel then
-			textLabel.Text = string.format("%d/%d", math.floor(health), math.floor(maxHealth))
-		end
+		if textLabel then textLabel.Text = string.format("%d/%d", math.floor(health), math.floor(maxHealth)) end
 
 		if health <= 0 or maxHealth <= 0 then
 			bar.Size = UDim2.new(0, 0, originalYScale, originalYOffset)
@@ -220,7 +217,6 @@ end
 
 local function setupNPC(npc)
 	if not npc:IsA("Model") then return end
-
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
 		createHPBar(npc, bossTemplate, "BossHPBar")
 	elseif npc:IsDescendantOf(enemyFolder) then
@@ -231,7 +227,7 @@ local function setupNPC(npc)
 end
 
 --------------------------------------------------
--- PROJECTILE HANDLING
+-- PROJECTILE LOGIC
 --------------------------------------------------
 
 local function handleProjectile(obj)
@@ -255,46 +251,83 @@ local function handleProjectile(obj)
 	angularVel.RelativeTo = Enum.RelativeTo.World
 	angularVel.Parent = root
 
-	obj.Destroying:Once(function()
-		activeProjectiles[obj] = nil
-	end)
+	obj.Destroying:Once(function() activeProjectiles[obj] = nil end)
 end
 
 local function processProjectile(obj)
-	if not obj or not obj.Parent then return end
+	task.defer(function()
+		if not obj or not obj.Parent then return end
 
-	if deleteProjectiles[obj.Name] then
-		obj:Destroy()
-	elseif validProjectiles[obj.Name] then
-		handleProjectile(obj)
-	end
+		if deleteProjectiles[obj.Name] then
+			obj:Destroy()
+		elseif validProjectiles[obj.Name] then
+			handleProjectile(obj)
+		end
+	end)
 end
 
 --------------------------------------------------
--- LISTENERS
+-- LISTENERS & BACKGROUND LOOPS
 --------------------------------------------------
 
+-- Initial Scan
 for _, desc in ipairs(friendlyFolder:GetDescendants()) do
-	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then setupNPC(desc) end
+	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 for _, desc in ipairs(enemyFolder:GetDescendants()) do
-	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then setupNPC(desc) end
+	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 
+-- ChildAdded Scans (RESTORED task.delay to fix HP Bars)
 friendlyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") then setupNPC(desc) end
-end)
-enemyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") then setupNPC(desc) end
+	if desc:IsA("Model") or desc:IsA("Humanoid") then
+		task.delay(0.1, function()
+			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
+			if model then setupNPC(model) end
+		end)
+	end
 end)
 
-for _, obj in ipairs(projectileFolder:GetChildren()) do
-	processProjectile(obj)
-end
+enemyFolder.DescendantAdded:Connect(function(desc)
+	if desc:IsA("Model") or desc:IsA("Humanoid") then
+		task.delay(0.1, function()
+			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
+			if model then setupNPC(model) end
+		end)
+	end
+end)
+
+CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
+	task.delay(0.1, function()
+		if object:IsDescendantOf(enemyFolder) then setupNPC(object) end
+	end)
+end)
+
+-- Process Projectiles
+for _, obj in ipairs(projectileFolder:GetChildren()) do processProjectile(obj) end
 projectileFolder.ChildAdded:Connect(processProjectile)
 
+-- Teleport Up Loop (RESTORED)
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		for _, obj in ipairs(projectileFolder:GetChildren()) do
+			if teleportUpProjectiles[obj.Name] then
+				if obj:IsA("Model") then
+					obj:PivotTo(obj:GetPivot() + Vector3.new(0, 500, 0))
+				else
+					local root = getProjectileRoot(obj)
+					if root then
+						root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
+					end
+				end
+			end
+		end
+	end
+end)
+
 --------------------------------------------------
--- ENGINE LOOP (SAFE HEARBEAT)
+-- MAIN ENGINE LOOP
 --------------------------------------------------
 
 RunService.Heartbeat:Connect(function()
@@ -304,7 +337,8 @@ RunService.Heartbeat:Connect(function()
 			continue
 		end
 
-		local targetPart = getNearestTarget(root.Position)
+		local position = root.Position
+		local targetPart = getNearestTarget(position)
 
 		if targetPart and targetPart:IsA("BasePart") then
 			if projectile:IsA("Model") then
