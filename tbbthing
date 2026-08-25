@@ -66,8 +66,10 @@ local teleportUpProjectiles = {
 
 -- Add enemy model names here to ignore them from projectile targeting
 local ignoredNPCs = {
-	["SampleEnemyName"] = true,
+	["Ghostwalker"] = true,
 	["Flower"] = true,
+    ["Judgement"] = true,
+    ["Punishment"] = true,
 }
 
 local activeProjectiles = {}
