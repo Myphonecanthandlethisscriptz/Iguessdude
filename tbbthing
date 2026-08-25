@@ -18,10 +18,6 @@ local enemyFolder = npcFolder:WaitForChild("EnemyFolder", 10)
 local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
--- Base Folder & Red Base Reference (From Image)
-local baseFolder = npcFolder:WaitForChild("BaseFolder", 10)
-local redBase = baseFolder and baseFolder:WaitForChild("Red Base", 10)
-
 if not enemyFolder or not friendlyFolder or not projectileFolder then
 	warn("[Error] Could not find required subfolders.")
 	return
@@ -66,8 +62,7 @@ local deleteProjectiles = {
 local teleportUpProjectiles = {
 	Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
 	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
-    TNT = true,
- 
+	TNT = true,
 }
 
 local ignoredNPCs = {
@@ -106,6 +101,53 @@ local function removeTouchInterests(obj)
 end
 
 --------------------------------------------------
+-- DYNAMIC TARGET RESOLUTION
+--------------------------------------------------
+
+local function getRedBaseTarget()
+	local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
+	if not baseFolder then return nil end
+
+	local redBase = baseFolder:FindFirstChild("Red Base")
+	if not redBase then return nil end
+
+	return redBase:FindFirstChild("MainHitbox") 
+		or redBase:FindFirstChild("Hitbox") 
+		or (redBase:IsA("Model") and redBase.PrimaryPart) 
+		or redBase:FindFirstChildWhichIsA("BasePart", true)
+end
+
+local function getNearestTarget(position)
+	local nearestPart = nil
+	local nearestDistance = math.huge
+
+	-- Dynamically check all Model instances in enemyFolder
+	for _, desc in ipairs(enemyFolder:GetDescendants()) do
+		if desc:IsA("Model") then
+			local humanoid = desc:FindFirstChildOfClass("Humanoid")
+			local root = desc:FindFirstChild("HumanoidRootPart") or desc.PrimaryPart
+
+			local isIgnored = ignoredNPCs[desc.Name] or desc:GetAttribute("Ignored")
+
+			if humanoid and humanoid.Health > 0 and root and not isIgnored then
+				local distance = (root.Position - position).Magnitude
+				if distance < nearestDistance then
+					nearestDistance = distance
+					nearestPart = desc:FindFirstChild("Hitbox") or root
+				end
+			end
+		end
+	end
+
+	-- Return enemy target part if found; otherwise, fall back to Red Base MainHitbox
+	if nearestPart then
+		return nearestPart
+	end
+
+	return getRedBaseTarget()
+end
+
+--------------------------------------------------
 -- HP BAR SYSTEM
 --------------------------------------------------
 
@@ -113,11 +155,7 @@ local function createHPBar(npc, template, barName)
 	if not template or not npc:IsA("Model") then return end
 
 	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
-	
-	local head = npc:FindFirstChild("Head")
-	if not (head and head:IsA("BasePart")) then
-		head = npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
-	end
+	local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
 
 	if not humanoid or not head then return end
 	if head:FindFirstChild(barName) then return end
@@ -174,7 +212,6 @@ local function createHPBar(npc, template, barName)
 	update()
 
 	local connections = {}
-	
 	local function cleanup()
 		for _, conn in ipairs(connections) do
 			conn:Disconnect()
@@ -228,43 +265,6 @@ local function handleProjectile(obj)
 	obj.Destroying:Once(function()
 		activeProjectiles[obj] = nil
 	end)
-end
-
--- Helper to get Red Base Hitbox target part
-local function getRedBaseTarget()
-	if not redBase then return nil end
-	return redBase:FindFirstChild("MainHitbox") 
-		or redBase:FindFirstChild("Hitbox") 
-		or redBase.PrimaryPart
-end
-
-local function getNearestTarget(position)
-	local nearestNPC = nil
-	local nearestDistance = math.huge
-
-	-- 1. Search for nearest enemy NPC
-	for _, npc in ipairs(enemyFolder:GetChildren()) do
-		local humanoid = npc:FindFirstChildOfClass("Humanoid")
-		local root = npc:FindFirstChild("HumanoidRootPart")
-
-		local isIgnored = ignoredNPCs[npc.Name] or npc:GetAttribute("Ignored")
-
-		if humanoid and humanoid.Health > 0 and root and not isIgnored then
-			local distance = (root.Position - position).Magnitude
-			if distance < nearestDistance then
-				nearestDistance = distance
-				nearestNPC = npc
-			end
-		end
-	end
-
-	-- 2. If an enemy NPC is found, return its main targeting part
-	if nearestNPC then
-		return nearestNPC:FindFirstChild("Hitbox") or nearestNPC:FindFirstChild("HumanoidRootPart")
-	end
-
-	-- 3. Fallback: Target Red Base's MainHitbox if no valid enemies remain
-	return getRedBaseTarget()
 end
 
 --------------------------------------------------
@@ -355,8 +355,7 @@ RunService.Heartbeat:Connect(function()
 			continue
 		end
 
-		local position = root.Position
-		local targetPart = getNearestTarget(position)
+		local targetPart = getNearestTarget(root.Position)
 
 		if targetPart and targetPart:IsA("BasePart") then
 			if projectile:IsA("Model") then
