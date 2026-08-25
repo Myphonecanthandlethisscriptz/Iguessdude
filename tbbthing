@@ -61,7 +61,7 @@ local deleteProjectiles = {
 
 local teleportUpProjectiles = {
 	Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
-	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true,
+	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
 }
 
 -- Add enemy model names here to ignore them from projectile targeting
@@ -70,6 +70,8 @@ local ignoredNPCs = {
 	["Flower"] = true,
     ["Judgement"] = true,
     ["Punishment"] = true,
+    ["Airhead"] = true,
+    ["Skittle"] = true,
 }
 
 local activeProjectiles = {}
