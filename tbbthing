@@ -72,6 +72,7 @@ local ignoredNPCs = {
     ["Punishment"] = true,
     ["Airhead"] = true,
     ["Skittle"] = true,
+    ["Dual Windforce"] = true,
 }
 
 local activeProjectiles = {}
