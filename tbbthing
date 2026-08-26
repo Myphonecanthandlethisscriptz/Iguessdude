@@ -350,36 +350,65 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --------------------------------------------------
--- TIMER SPAWN TRIGGER LOGIC
+-- TIMER SPAWN TRIGGER LOGIC (AUTO-RECONNECTING)
 --------------------------------------------------
 
 task.spawn(function()
 	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 	local playerGui = localPlayer:WaitForChild("PlayerGui")
 
-	local battleScreen = playerGui:WaitForChild("BattleScreen")
-	local bankButton = battleScreen:WaitForChild("BankButton")
-	local timerLabel = bankButton:WaitForChild("Timer")
-
 	local eventsFolder = ReplicatedStorage:WaitForChild("Events")
 	local remoteFunctionFolder = eventsFolder:WaitForChild("RemoteFunction")
 	local playerSpawnRemote = remoteFunctionFolder:WaitForChild("PlayerSpawn")
 
 	local hasFired = false
+	local currentConnection = nil
 
-	local function checkTimer()
-		if timerLabel.Text == "0:00" and not hasFired then
-			hasFired = true
-			
-			local args = {
-				[1] = "Bank"
-			}
-			playerSpawnRemote:InvokeServer(unpack(args))
-		elseif timerLabel.Text ~= "0:00" then
-			hasFired = false
+	local function hookTimerLabel()
+		if currentConnection then
+			currentConnection:Disconnect()
+			currentConnection = nil
 		end
+
+		local battleScreen = playerGui:WaitForChild("BattleScreen", 10)
+		if not battleScreen then return end
+
+		local bankButton = battleScreen:WaitForChild("BankButton", 10)
+		if not bankButton then return end
+
+		local timerLabel = bankButton:WaitForChild("Timer", 10)
+		if not timerLabel then return end
+
+		local function checkTimer()
+			if timerLabel.Text == "0:00" and not hasFired then
+				hasFired = true
+				
+				local args = {
+					[1] = "Bank"
+				}
+				playerSpawnRemote:InvokeServer(unpack(args))
+			elseif timerLabel.Text ~= "0:00" then
+				hasFired = false
+			end
+		end
+
+		currentConnection = timerLabel:GetPropertyChangedSignal("Text"):Connect(checkTimer)
+		
+		timerLabel.Destroying:Once(function()
+			if currentConnection then
+				currentConnection:Disconnect()
+				currentConnection = nil
+			end
+		end)
+
+		checkTimer()
 	end
 
-	timerLabel:GetPropertyChangedSignal("Text"):Connect(checkTimer)
-	checkTimer()
+	hookTimerLabel()
+
+	playerGui.DescendantAdded:Connect(function(descendant)
+		if descendant.Name == "Timer" and descendant:IsA("TextLabel") then
+			task.delay(0.1, hookTimerLabel)
+		end
+	end)
 end)
