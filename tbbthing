@@ -354,16 +354,16 @@ end)
 --------------------------------------------------
 
 task.spawn(function()
-	local localPlayer = Players.LocalPlayer
+	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 	local playerGui = localPlayer:WaitForChild("PlayerGui")
 
 	local battleScreen = playerGui:WaitForChild("BattleScreen")
 	local bankButton = battleScreen:WaitForChild("BankButton")
 	local timerLabel = bankButton:WaitForChild("Timer")
 
-	local playerSpawnRemote = ReplicatedStorage:WaitForChild("Events")
-	                                           :WaitForChild("RemoteFunction")
-	                                           :WaitForChild("PlayerSpawn")
+	local eventsFolder = ReplicatedStorage:WaitForChild("Events")
+	local remoteFunctionFolder = eventsFolder:WaitForChild("RemoteFunction")
+	local playerSpawnRemote = remoteFunctionFolder:WaitForChild("PlayerSpawn")
 
 	local hasFired = false
 
