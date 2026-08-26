@@ -348,3 +348,38 @@ RunService.Heartbeat:Connect(function()
 		end
 	end
 end)
+
+--------------------------------------------------
+-- TIMER SPAWN TRIGGER LOGIC
+--------------------------------------------------
+
+task.spawn(function()
+	local localPlayer = Players.LocalPlayer
+	local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+	local battleScreen = playerGui:WaitForChild("BattleScreen")
+	local bankButton = battleScreen:WaitForChild("BankButton")
+	local timerLabel = bankButton:WaitForChild("Timer")
+
+	local playerSpawnRemote = ReplicatedStorage:WaitForChild("Events")
+	                                           :WaitForChild("RemoteFunction")
+	                                           :WaitForChild("PlayerSpawn")
+
+	local hasFired = false
+
+	local function checkTimer()
+		if timerLabel.Text == "0:00" and not hasFired then
+			hasFired = true
+			
+			local args = {
+				[1] = "Bank"
+			}
+			playerSpawnRemote:InvokeServer(unpack(args))
+		elseif timerLabel.Text ~= "0:00" then
+			hasFired = false
+		end
+	end
+
+	timerLabel:GetPropertyChangedSignal("Text"):Connect(checkTimer)
+	checkTimer()
+end)
