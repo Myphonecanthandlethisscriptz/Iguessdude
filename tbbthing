@@ -46,6 +46,7 @@ local validProjectiles = {
 	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
 	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
 	Spam = true, SorcusEgg = true, BigIceball = true, Goala = true,
+    Teapot = true, FireTeapot = true, 
 }
 
 local deleteProjectiles = {
