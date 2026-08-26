@@ -55,7 +55,7 @@ local deleteProjectiles = {
 	StunPellet = false, SuperCannonBall = true, CannonBall = true, Hellball = true,
 	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
 	Coal = true, UglyCake = true, Paintball = true, CrossbowArrow = true,
-	EvilDuck = false, CoalFist = true, Teapot = true, FireTeapot = true,
+	EvilDuck = false, CoalFist = true, Teapot = false, FireTeapot = false,
 	ThrowingAxe = true, GlowThrowingAxe = true,
 }
 
