@@ -78,14 +78,16 @@ local ignoredNPCs = {
 local activeProjectiles = {}
 
 --------------------------------------------------
--- HELPER FUNCTIONS
+-- HELPER FUNCTIONS (STACK OVERFLOW SAFE)
 --------------------------------------------------
 
 local function getProjectileRoot(obj)
 	if obj:IsA("BasePart") then
 		return obj
 	elseif obj:IsA("Model") then
-		return obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+		if obj.PrimaryPart then return obj.PrimaryPart end
+		-- Replaced recursive FindFirstChildWhichIsA to prevent C-stack overflow
+		return obj:FindFirstChildWhichIsA("BasePart", false)
 	end
 	return nil
 end
@@ -126,7 +128,7 @@ local function getRedBaseTarget()
 		if redBase.PrimaryPart then
 			return redBase.PrimaryPart
 		end
-		return redBase:FindFirstChildWhichIsA("BasePart")
+		return redBase:FindFirstChildWhichIsA("BasePart", false)
 	end
 
 	return nil
@@ -160,14 +162,14 @@ local function getNearestTarget(position)
 end
 
 --------------------------------------------------
--- HP BAR SYSTEM
+-- HP BAR SYSTEM (SAFE SEARCH)
 --------------------------------------------------
 
 local function createHPBar(npc, template, barName)
 	if not template or not npc:IsA("Model") then return end
 
 	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
-	local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart")
+	local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
 
 	if not humanoid or not head then return end
 	if head:FindFirstChild(barName) then return end
@@ -392,7 +394,7 @@ task.spawn(function()
 		if not battleScreen then return end
 
 		local bankButton = battleScreen:WaitForChild("BankButton", 10)
-		if not bankButton then return end
+		if not bankButton me return end
 
 		local timerLabel = bankButton:WaitForChild("Timer", 10)
 		if not timerLabel then return end
