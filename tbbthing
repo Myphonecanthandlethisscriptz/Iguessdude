@@ -76,6 +76,7 @@ local ignoredNPCs = {
 }
 
 local activeProjectiles = {}
+local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
 
 --------------------------------------------------
 -- HELPER FUNCTIONS
@@ -161,6 +162,71 @@ local function getNearestTarget(position)
 end
 
 --------------------------------------------------
+-- WAIT TO MOVE UI SYSTEM
+--------------------------------------------------
+
+local function createWaitToMoveUI(npc)
+	if not npc:IsA("Model") then return end
+
+	local head = npc:FindFirstChild("Head") 
+		or npc.PrimaryPart 
+		or npc:FindFirstChildWhichIsA("BasePart", false)
+
+	if not head or head:FindFirstChild(UI_WAIT_TO_MOVE_NAME) then return end
+
+	-- Billboard GUI creation (starts invisible)
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = UI_WAIT_TO_MOVE_NAME
+	billboard.Adornee = head
+	billboard.Size = UDim2.new(0, 160, 0, 30)
+	billboard.StudsOffset = Vector3.new(0, 4.5, 0) -- Placed above HP bar
+	billboard.AlwaysOnTop = true
+	billboard.Enabled = false -- Invisible by default
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextColor3 = Color3.fromRGB(255, 230, 80)
+	textLabel.TextStrokeTransparency = 0
+	textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	textLabel.Font = Enum.Font.GothamBold
+	textLabel.TextSize = 14
+	textLabel.Parent = billboard
+
+	billboard.Parent = head
+
+	local connections = {}
+
+	local function cleanup()
+		for _, conn in ipairs(connections) do conn:Disconnect() end
+		table.clear(connections)
+		if billboard and billboard.Parent then billboard:Destroy() end
+	end
+
+	local function updateText()
+		local waitValue = npc:GetAttribute("WaitToMove")
+		if waitValue ~= nil then
+			textLabel.Text = string.format("WaitToMove: %s", tostring(waitValue))
+			billboard.Enabled = true -- Become visible once attribute exists
+		else
+			billboard.Enabled = false -- Hide if attribute becomes nil
+		end
+	end
+
+	-- Connect signal to listen for changes
+	table.insert(connections, npc:GetAttributeChangedSignal("WaitToMove"):Connect(updateText))
+
+	-- Initial check
+	updateText()
+
+	local humanoid = npc:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		table.insert(connections, humanoid.Died:Connect(cleanup))
+	end
+	table.insert(connections, npc.Destroying:Connect(cleanup))
+end
+
+--------------------------------------------------
 -- HP BAR SYSTEM
 --------------------------------------------------
 
@@ -233,6 +299,11 @@ end
 
 local function setupNPC(npc)
 	if not npc:IsA("Model") then return end
+	
+	if npc:IsDescendantOf(enemyFolder) then
+		createWaitToMoveUI(npc)
+	end
+
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
 		createHPBar(npc, bossTemplate, "BossHPBar")
 	elseif npc:IsDescendantOf(enemyFolder) then
@@ -296,7 +367,7 @@ for _, desc in ipairs(enemyFolder:GetDescendants()) do
 	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 
--- Child/Descendant Added Scans (Ignoring HP Bar visual parts to avoid recursion)
+-- Child/Descendant Added Scans
 friendlyFolder.ChildAdded:Connect(function(child)
 	if child:IsA("Model") then
 		task.delay(0.1, function() setupNPC(child) end)
