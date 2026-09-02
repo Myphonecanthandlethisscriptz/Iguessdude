@@ -15,9 +15,6 @@ local enemyFolder = npcFolder:WaitForChild("EnemyFolder", 10)
 local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
-local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
-local redBase = baseFolder and baseFolder:FindFirstChild("Red Base")
-
 if not enemyFolder or not friendlyFolder or not projectileFolder then
 	warn("[Error] Subfolders missing.")
 	return
@@ -46,7 +43,7 @@ local validProjectiles = {
 	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
 	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
 	Spam = true, SorcusEgg = true, BigIceball = true, Goala = true,
-    Teapot = true, FireTeapot = true, 
+	Teapot = true, FireTeapot = true, 
 }
 
 local deleteProjectiles = {
@@ -102,19 +99,37 @@ local function removeTouchInterests(obj)
 end
 
 --------------------------------------------------
--- TARGETING (OPTIMIZED)
+-- TARGETING (OPTIMIZED & SAFE BASE DETECTOR)
 --------------------------------------------------
 
 local function getRedBaseTarget()
-	if not redBase then
-		local bFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
-		redBase = bFolder and bFolder:FindFirstChild("Red Base")
-	end
+	local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
+	local redBase = baseFolder and baseFolder:FindFirstChild("Red Base") or Workspace:FindFirstChild("Red Base")
+
 	if not redBase then return nil end
 
-	return redBase:FindFirstChild("MainHitbox")
+	if redBase:IsA("BasePart") then
+		return redBase
+	end
+
+	local targetPart = redBase:FindFirstChild("MainHitbox")
 		or redBase:FindFirstChild("Hitbox")
-		or (redBase:IsA("Model") and redBase.PrimaryPart)
+		or redBase:FindFirstChild("HumanoidRootPart")
+		or redBase:FindFirstChild("Base")
+		or redBase:FindFirstChild("Core")
+
+	if targetPart and targetPart:IsA("BasePart") then
+		return targetPart
+	end
+
+	if redBase:IsA("Model") then
+		if redBase.PrimaryPart then
+			return redBase.PrimaryPart
+		end
+		return redBase:FindFirstChildWhichIsA("BasePart")
+	end
+
+	return nil
 end
 
 local function getNearestTarget(position)
@@ -207,7 +222,7 @@ local function createHPBar(npc, template, barName)
 	local function cleanup()
 		for _, conn in ipairs(connections) do conn:Disconnect() end
 		table.clear(connections)
-		if hpBar then hpBar:Destroy() end
+		if hpBar and hpBar.Parent then hpBar:Destroy() end
 	end
 
 	table.insert(connections, humanoid.HealthChanged:Connect(update))
@@ -251,7 +266,9 @@ local function handleProjectile(obj)
 	angularVel.RelativeTo = Enum.RelativeTo.World
 	angularVel.Parent = root
 
-	obj.Destroying:Once(function() activeProjectiles[obj] = nil end)
+	obj.Destroying:Once(function()
+		activeProjectiles[obj] = nil
+	end)
 end
 
 local function processProjectile(obj)
@@ -340,7 +357,7 @@ RunService.Heartbeat:Connect(function()
 		local position = root.Position
 		local targetPart = getNearestTarget(position)
 
-		if targetPart and targetPart:IsA("BasePart") then
+		if targetPart and targetPart:IsA("BasePart") and targetPart.Parent then
 			if projectile:IsA("Model") then
 				projectile:PivotTo(targetPart.CFrame)
 			else
@@ -351,7 +368,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 --------------------------------------------------
--- TIMER SPAWN TRIGGER LOGIC (AUTO-RECONNECTING)
+-- TIMER SPAWN TRIGGER LOGIC
 --------------------------------------------------
 
 task.spawn(function()
