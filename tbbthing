@@ -43,7 +43,7 @@ local validProjectiles = {
 	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
 	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
 	Spam = true, SorcusEgg = true, BigIceball = true, Goala = true,
-	Teapot = true, FireTeapot = true, 
+	Teapot = true, FireTeapot = true,
 }
 
 local deleteProjectiles = {
@@ -78,7 +78,7 @@ local ignoredNPCs = {
 local activeProjectiles = {}
 
 --------------------------------------------------
--- HELPER FUNCTIONS (STACK OVERFLOW SAFE)
+-- HELPER FUNCTIONS
 --------------------------------------------------
 
 local function getProjectileRoot(obj)
@@ -86,7 +86,6 @@ local function getProjectileRoot(obj)
 		return obj
 	elseif obj:IsA("Model") then
 		if obj.PrimaryPart then return obj.PrimaryPart end
-		-- Replaced recursive FindFirstChildWhichIsA to prevent C-stack overflow
 		return obj:FindFirstChildWhichIsA("BasePart", false)
 	end
 	return nil
@@ -162,7 +161,7 @@ local function getNearestTarget(position)
 end
 
 --------------------------------------------------
--- HP BAR SYSTEM (SAFE SEARCH)
+-- HP BAR SYSTEM
 --------------------------------------------------
 
 local function createHPBar(npc, template, barName)
@@ -297,22 +296,16 @@ for _, desc in ipairs(enemyFolder:GetDescendants()) do
 	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 
--- ChildAdded Scans
-friendlyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") or desc:IsA("Humanoid") then
-		task.delay(0.1, function()
-			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
-			if model then setupNPC(model) end
-		end)
+-- Child/Descendant Added Scans (Ignoring HP Bar visual parts to avoid recursion)
+friendlyFolder.ChildAdded:Connect(function(child)
+	if child:IsA("Model") then
+		task.delay(0.1, function() setupNPC(child) end)
 	end
 end)
 
-enemyFolder.DescendantAdded:Connect(function(desc)
-	if desc:IsA("Model") or desc:IsA("Humanoid") then
-		task.delay(0.1, function()
-			local model = desc:IsA("Model") and desc or desc:FindFirstAncestorOfClass("Model")
-			if model then setupNPC(model) end
-		end)
+enemyFolder.ChildAdded:Connect(function(child)
+	if child:IsA("Model") then
+		task.delay(0.1, function() setupNPC(child) end)
 	end
 end)
 
@@ -394,7 +387,7 @@ task.spawn(function()
 		if not battleScreen then return end
 
 		local bankButton = battleScreen:WaitForChild("BankButton", 10)
-		if not bankButton me return end
+		if not bankButton then return end
 
 		local timerLabel = bankButton:WaitForChild("Timer", 10)
 		if not timerLabel then return end
