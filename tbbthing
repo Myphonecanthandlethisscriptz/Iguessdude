@@ -28,7 +28,7 @@ local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
 local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
--- CONFIGURATIONS
+-- CONFIGURATIONS & STATE
 --------------------------------------------------
 
 local validProjectiles = {
@@ -77,6 +77,9 @@ local ignoredNPCs = {
 
 local activeProjectiles = {}
 local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
+local UI_ARMOR_NAME = "ArmorDisplay"
+
+local showArmor = false -- Toggled via /armor chat command
 
 --------------------------------------------------
 -- HELPER FUNCTIONS
@@ -174,14 +177,13 @@ local function createWaitToMoveUI(npc)
 
 	if not head or head:FindFirstChild(UI_WAIT_TO_MOVE_NAME) then return end
 
-	-- Billboard GUI creation (starts invisible)
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = UI_WAIT_TO_MOVE_NAME
 	billboard.Adornee = head
 	billboard.Size = UDim2.new(0, 160, 0, 30)
-	billboard.StudsOffset = Vector3.new(0, 4.5, 0) -- Placed above HP bar
+	billboard.StudsOffset = Vector3.new(0, 4.5, 0)
 	billboard.AlwaysOnTop = true
-	billboard.Enabled = false -- Invisible by default
+	billboard.Enabled = false
 
 	local textLabel = Instance.new("TextLabel")
 	textLabel.Size = UDim2.new(1, 0, 1, 0)
@@ -207,16 +209,13 @@ local function createWaitToMoveUI(npc)
 		local waitValue = npc:GetAttribute("WaitToMove")
 		if waitValue ~= nil then
 			textLabel.Text = string.format("WaitToMove: %s", tostring(waitValue))
-			billboard.Enabled = true -- Become visible once attribute exists
+			billboard.Enabled = true
 		else
-			billboard.Enabled = false -- Hide if attribute becomes nil
+			billboard.Enabled = false
 		end
 	end
 
-	-- Connect signal to listen for changes
 	table.insert(connections, npc:GetAttributeChangedSignal("WaitToMove"):Connect(updateText))
-
-	-- Initial check
 	updateText()
 
 	local humanoid = npc:FindFirstChildOfClass("Humanoid")
@@ -225,6 +224,97 @@ local function createWaitToMoveUI(npc)
 	end
 	table.insert(connections, npc.Destroying:Connect(cleanup))
 end
+
+--------------------------------------------------
+-- ARMOR DISPLAY UI SYSTEM
+--------------------------------------------------
+
+local function createArmorUI(npc)
+	if not npc:IsA("Model") then return end
+
+	local head = npc:FindFirstChild("Head") 
+		or npc.PrimaryPart 
+		or npc:FindFirstChildWhichIsA("BasePart", false)
+
+	if not head or head:FindFirstChild(UI_ARMOR_NAME) then return end
+
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = UI_ARMOR_NAME
+	billboard.Adornee = head
+	billboard.Size = UDim2.new(0, 160, 0, 30)
+	billboard.StudsOffset = Vector3.new(0, 6.0, 0) -- Higher up so it doesn't overlap WaitToMove or HP bar
+	billboard.AlwaysOnTop = true
+	billboard.Enabled = showArmor
+
+	local textLabel = Instance.new("TextLabel")
+	textLabel.Size = UDim2.new(1, 0, 1, 0)
+	textLabel.BackgroundTransparency = 1
+	textLabel.TextColor3 = Color3.fromRGB(100, 200, 255) -- Cyan/Blue accent for Armor
+	textLabel.TextStrokeTransparency = 0
+	textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	textLabel.Font = Enum.Font.GothamBold
+	textLabel.TextSize = 14
+	textLabel.Parent = billboard
+
+	billboard.Parent = head
+
+	local connections = {}
+
+	local function cleanup()
+		for _, conn in ipairs(connections) do conn:Disconnect() end
+		table.clear(connections)
+		if billboard and billboard.Parent then billboard:Destroy() end
+	end
+
+	local function updateText()
+		local armorValue = npc:GetAttribute("Armour") or npc:GetAttribute("Armor") or 0
+		textLabel.Text = string.format("Armour: %s", tostring(armorValue))
+		billboard.Enabled = showArmor
+	end
+
+	table.insert(connections, npc:GetAttributeChangedSignal("Armour"):Connect(updateText))
+	table.insert(connections, npc:GetAttributeChangedSignal("Armor"):Connect(updateText))
+	updateText()
+
+	local humanoid = npc:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		table.insert(connections, humanoid.Died:Connect(cleanup))
+	end
+	table.insert(connections, npc.Destroying:Connect(cleanup))
+end
+
+local function toggleArmorDisplays()
+	showArmor = not showArmor
+	for _, npc in ipairs(enemyFolder:GetChildren()) do
+		if npc:IsA("Model") then
+			local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
+			if head then
+				local armorGui = head:FindFirstChild(UI_ARMOR_NAME)
+				if armorGui then
+					armorGui.Enabled = showArmor
+				end
+			end
+		end
+	end
+end
+
+--------------------------------------------------
+-- CHAT COMMAND LISTENER (/armor)
+--------------------------------------------------
+
+task.spawn(function()
+	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+
+	local function setupChat(player)
+		player.Chatted:Connect(function(msg)
+			if string.lower(msg) == "/armor" then
+				toggleArmorDisplays()
+			end
+		end)
+	end
+
+	setupChat(localPlayer)
+end)
 
 --------------------------------------------------
 -- HP BAR SYSTEM
@@ -302,6 +392,7 @@ local function setupNPC(npc)
 	
 	if npc:IsDescendantOf(enemyFolder) then
 		createWaitToMoveUI(npc)
+		createArmorUI(npc)
 	end
 
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
