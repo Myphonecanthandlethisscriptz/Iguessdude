@@ -1,12 +1,244 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "scriptstuff",
+    Icon = 0,
+    LoadingTitle = "script stuff",
+    LoadingSubtitle = "by ME",
+    ShowText = "Rayfield",
+    Theme = "Default",
+
+    ToggleUIKeybind = "K",
+
+    DisableRayfieldPrompts = false,
+    DisableBuildWarnings = false,
+
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = nil,
+        FileName = "Big Hub"
+    },
+
+    Discord = {
+        Enabled = false,
+        Invite = "noinvitelink",
+        RememberJoins = true
+    },
+
+    KeySystem = true,
+    KeySettings = {
+        Title = "scriptstuff",
+        Subtitle = "Key System",
+        Note = "Key is: Release",
+        FileName = "Key",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"Release"}
+    }
+})
+
+local Tab = Window:CreateTab("depriverthing", 4483362458)
+
+--------------------------------------------------
+-- MORTIS / CHAPTER 4 & 5 UTILITIES
+--------------------------------------------------
+Tab:CreateSection("Instant Answer Chapter 4 tumore stage 30")
+
+Tab:CreateButton({
+    Name = "Answer Clock",
+    Callback = function()
+        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+        if playerGui and playerGui:FindFirstChild("ClockQuiz") and playerGui.ClockQuiz:FindFirstChild("Answer") then
+            playerGui.ClockQuiz.Answer:FireServer(true)
+        end
+    end,
+})
+
+Tab:CreateKeybind({
+    Name = "Answer Clock Keybind",
+    CurrentKeybind = "T",
+    HoldToInteract = false,
+    Flag = "ClockAnswerKeybind",
+    Callback = function()
+        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+        if playerGui and playerGui:FindFirstChild("ClockQuiz") and playerGui.ClockQuiz:FindFirstChild("Answer") then
+            playerGui.ClockQuiz.Answer:FireServer(true)
+        end
+    end,
+})
+
+Tab:CreateSection("Auto Shoot Target and Target K1d And FUNK1D Chapter 5")
+
+_G.AutoShoot = false
+Tab:CreateToggle({
+    Name = "Auto Shoot Target",
+    CurrentValue = false,
+    Flag = "AutoShoot1", 
+    Callback = function(Value)
+        _G.AutoShoot = Value
+        if _G.AutoShoot then
+            task.spawn(function()
+                while _G.AutoShoot do
+                    local shootable = workspace:FindFirstChild("Shootable")
+                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+                    if shootable and shootable:FindFirstChild("Target") and playerGui and playerGui:FindFirstChild("CrosshairUI") then
+                        playerGui.CrosshairUI.ShootEvent:FireServer(shootable.Target)
+                    end
+                    task.wait(0.1) 
+                end
+            end)
+        end
+    end,
+})
+
+_G.AutoShootK1d = false
+Tab:CreateToggle({
+    Name = "Auto Shoot Target K1d",
+    CurrentValue = false,
+    Flag = "AutoShootK1dFlag", 
+    Callback = function(Value)
+        _G.AutoShootK1d = Value
+        if _G.AutoShootK1d then
+            task.spawn(function()
+                while _G.AutoShootK1d do
+                    local shootable = workspace:FindFirstChild("Shootable")
+                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
+                        local targetK1d = shootable:FindFirstChild("TargetK1d")
+                        if targetK1d and targetK1d:FindFirstChild("Target") then
+                            playerGui.CrosshairUI.ShootEvent:FireServer(targetK1d.Target)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end,
+})
+
+_G.AutoShootFunK1d = false
+Tab:CreateToggle({
+    Name = "Auto Shoot FunK1d",
+    CurrentValue = false,
+    Flag = "AutoShootFunK1dFlag", 
+    Callback = function(Value)
+        _G.AutoShootFunK1d = Value
+        if _G.AutoShootFunK1d then
+            task.spawn(function()
+                while _G.AutoShootFunK1d do
+                    local shootable = workspace:FindFirstChild("Shootable")
+                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
+                        local funK1d = shootable:FindFirstChild("FunK1d")
+                        if funK1d and funK1d:FindFirstChild("HumanoidRootPart") then
+                            playerGui.CrosshairUI.ShootEvent:FireServer(funK1d.HumanoidRootPart)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end,
+})
+
+Tab:CreateSection("Auto Shoot Tree Bush Chapter 5")
+
+_G.AutoShootBush = false
+Tab:CreateToggle({
+    Name = "Auto Shoot Tree Bush",
+    CurrentValue = false,
+    Flag = "AutoShootBushFlag", 
+    Callback = function(Value)
+        _G.AutoShootBush = Value
+        if _G.AutoShootBush then
+            task.spawn(function()
+                while _G.AutoShootBush do
+                    local shootable = workspace:FindFirstChild("Shootable")
+                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
+                        local tree = shootable:FindFirstChild("Tree")
+                        if tree and tree:FindFirstChild("Bush") then
+                            playerGui.CrosshairUI.ShootEvent:FireServer(tree.Bush)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end,
+})
+
+Tab:CreateSection("Anti Game over when you lose all heart at gamek1d (use it on last heart)")
+
+Tab:CreateButton({
+    Name = "Anti Game over at last heart",
+    Callback = function()
+        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+        if playerGui and playerGui:FindFirstChild("FunGui") and playerGui.FunGui:FindFirstChild("SuccessEvent") then
+            playerGui.FunGui.SuccessEvent:FireServer(true)
+        end
+    end,
+})
+
+Tab:CreateKeybind({
+    Name = "Anti Game Over at last heart keybind",
+    CurrentKeybind = "Y",
+    HoldToInteract = false,
+    Flag = "AntiGameOverKeybind",
+    Callback = function()
+        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+        if playerGui and playerGui:FindFirstChild("FunGui") and playerGui.FunGui:FindFirstChild("SuccessEvent") then
+            playerGui.FunGui.SuccessEvent:FireServer(true)
+        end
+    end,
+})
+
+--------------------------------------------------
+-- CHUSTUI REMOTE BLOCKER
+--------------------------------------------------
+Tab:CreateSection("Protection & Extra System")
+
+_G.BlockRemoteOnly = false 
+
+if not hookmetamethod then
+    warn("❌ Executor ของคุณไม่รองรับ hookmetamethod")
+else
+    local oldNamecall
+    if not oldNamecall then
+        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+            local method = getnamecallmethod()
+            
+            if method == "FireServer" and self.Name == "RemoteEvent" then
+                if self.Parent and self.Parent.Name == "ChustUI" then
+                    if _G.BlockRemoteOnly then
+                        return nil
+                    end
+                end
+            end
+            
+            return oldNamecall(self, ...)
+        end)
+    end
+end
+
+Tab:CreateToggle({
+    Name = "Block ChustUI Remote",
+    CurrentValue = false,
+    Flag = "BlockChustUIDelta", 
+    Callback = function(Value)
+        _G.BlockRemoteOnly = Value
+        print(_G.BlockRemoteOnly and "🚫 เปิดการบล็อกรีโมท" or "🟢 ปิดการบล็อกรีโมท")
+    end,
+})
+
+--------------------------------------------------
+-- WORKSPACE & GAME SERVICES
+--------------------------------------------------
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
-
---------------------------------------------------
--- FOLDERS & REFERENCES
---------------------------------------------------
 
 local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
 if not npcFolder then warn("[Error] 'NPCFolders' missing!"); return end
@@ -16,8 +248,8 @@ local friendlyFolder = npcFolder:WaitForChild("FriendlyFolder", 10)
 local projectileFolder = Workspace:WaitForChild("Projectile", 10)
 
 if not enemyFolder or not friendlyFolder or not projectileFolder then
-	warn("[Error] Subfolders missing.")
-	return
+    warn("[Error] Subfolders missing.")
+    return
 end
 
 local visualsFolder = ReplicatedStorage:WaitForChild("Visuals", 10)
@@ -30,593 +262,588 @@ local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 --------------------------------------------------
 -- CONFIGURATIONS & STATE
 --------------------------------------------------
-
 local validProjectiles = {
-	Pellet = true, Superball = true, BigHellball = true, Cupcake = true,
-	Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true,
-	Hellrocket = true, BiggerRocket = true, Grenade = true, Molotov = true,
-	SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true,
-	TNT = false, Paintnade = true, Arrow = true, WoodArrow = true,
-	LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true,
-	Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true,
-	Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true,
-	CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
-	TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
-	Spam = true, SorcusEgg = true, BigIceball = true, Goala = true,
-	Teapot = true, FireTeapot = true,
+    Pellet = true, Superball = true, BigHellball = true, Cupcake = true,
+    Rocket = true, BigRocket = true, Paintball = true, CrossbowArrow = true,
+    Hellrocket = true, BiggerRocket = true, Grenade = true, Molotov = true,
+    SpiritBomb = true, Soccerball = true, Cake = true, ZekaRocket = true,
+    TNT = false, Paintnade = true, Arrow = true, WoodArrow = true,
+    LightBomb = true, EpicKunai = true, GameProjectile = true, Ghostwalker = true,
+    Bacon = true, BigGhostwalker = true, BloodArrow = true, SorcusBlade = true,
+    Iceball = true, Bigiceball = true, Fireball = true, BigFireball = true,
+    CesusBomb = true, LilCesuspot = true, BloodStone = true, BloodCrystal = true,
+    TumorePellet = true, CrimsonBall = true, Banana = true, Cola = true,
+    Spam = true, SorcusEgg = true, BigIceball = true, Goala = true,
+    Teapot = true, FireTeapot = true,
 }
 
 local deleteProjectiles = {
-	Hyperlaser = true, Ghostwalker = true, BigRocket = true, SpiritBomb = true,
-	SorcusBlade = true, GameProjectile = true, RainbowBomb = true, GrandPiano = true,
-	Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
-	StunPellet = false, SuperCannonBall = true, CannonBall = true, Hellball = true,
-	BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
-	Coal = true, UglyCake = true, Paintball = false, CrossbowArrow = true,
-	EvilDuck = false, CoalFist = true, Teapot = false, FireTeapot = false,
-	ThrowingAxe = true, GlowThrowingAxe = true,
+    Hyperlaser = true, Ghostwalker = true, BigRocket = true, SpiritBomb = true,
+    SorcusBlade = true, GameProjectile = true, RainbowBomb = true, GrandPiano = true,
+    Magicball = true, Ipecac = true, Hellrocket = true, Flashbang = true,
+    StunPellet = false, SuperCannonBall = true, CannonBall = true, Hellball = true,
+    BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
+    Coal = true, UglyCake = true, Paintball = false, CrossbowArrow = true,
+    EvilDuck = false, CoalFist = true, Teapot = false, FireTeapot = false,
+    ThrowingAxe = true, GlowThrowingAxe = true,
 }
 
 local teleportUpProjectiles = {
-	Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
-	Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
-	TNT = true,
+    Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
+    Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
+    TNT = true,
 }
 
 local ignoredNPCs = {
-	["Ghostwalker"] = true,
-	["Flower"] = true,
-	["Judgement"] = true,
-	["Punishment"] = true,
-	["Airhead"] = true,
-	["Skittle"] = true,
-	["Dual Windforce"] = true,
-	["Reinbo Soul"] = true,
-	["Chronos"] = true,
+    ["Ghostwalker"] = true,
+    ["Flower"] = true,
+    ["Judgement"] = true,
+    ["Punishment"] = true,
+    ["Airhead"] = true,
+    ["Skittle"] = true,
+    ["Dual Windforce"] = true,
+    ["Reinbo Soul"] = true,
+    ["Chronos"] = true,
 }
 
 local activeProjectiles = {}
 local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
-
 local godModeActive = false
 
 --------------------------------------------------
 -- GOD MODE SYSTEM
 --------------------------------------------------
-
 local function removeFriendlyRoot(npc)
-	if not godModeActive or not npc:IsA("Model") then return end
-	local root = npc:FindFirstChild("HumanoidRootPart")
-	if root then
-		root:Destroy()
-	end
+    if not godModeActive or not npc:IsA("Model") then return end
+    local root = npc:FindFirstChild("HumanoidRootPart")
+    if root then
+        root:Destroy()
+    end
 end
 
-local function toggleGodMode()
-	godModeActive = not godModeActive
-	print(string.format("[God Mode] Toggled: %s", tostring(godModeActive)))
+Tab:CreateToggle({
+    Name = "Toggle God Mode",
+    CurrentValue = false,
+    Flag = "GodModeToggle",
+    Callback = function(Value)
+        godModeActive = Value
+        print(string.format("[God Mode] Toggled: %s", tostring(godModeActive)))
 
-	if godModeActive then
-		for _, desc in ipairs(friendlyFolder:GetDescendants()) do
-			if desc:IsA("Model") then
-				removeFriendlyRoot(desc)
-			end
-		end
-	end
-end
+        if godModeActive then
+            for _, desc in ipairs(friendlyFolder:GetDescendants()) do
+                if desc:IsA("Model") then
+                    removeFriendlyRoot(desc)
+                end
+            end
+        end
+    end,
+})
 
 --------------------------------------------------
 -- CHAT COMMAND SYSTEM
 --------------------------------------------------
-
 local function findProjectileKey(targetTable, lowerInput)
-	for key in pairs(targetTable) do
-		if string.lower(key) == lowerInput then
-			return key
-		end
-	end
-	return nil
+    for key in pairs(targetTable) do
+        if string.lower(key) == lowerInput then
+            return key
+        end
+    end
+    return nil
 end
 
 local function toggleProjectileState(inputName)
-	local lowerInput = string.lower(inputName)
-	local validKey = findProjectileKey(validProjectiles, lowerInput)
-	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+    local lowerInput = string.lower(inputName)
+    local validKey = findProjectileKey(validProjectiles, lowerInput)
+    local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
 
-	if validKey then
-		validProjectiles[validKey] = not validProjectiles[validKey]
-		print(string.format("[Toggle] validProjectiles['%s'] set to: %s", validKey, tostring(validProjectiles[validKey])))
-	end
+    if validKey then
+        validProjectiles[validKey] = not validProjectiles[validKey]
+        print(string.format("[Toggle] validProjectiles['%s'] set to: %s", validKey, tostring(validProjectiles[validKey])))
+    end
 
-	if deleteKey then
-		deleteProjectiles[deleteKey] = not deleteProjectiles[deleteKey]
-		print(string.format("[Toggle] deleteProjectiles['%s'] set to: %s", deleteKey, tostring(deleteProjectiles[deleteKey])))
-	end
+    if deleteKey then
+        deleteProjectiles[deleteKey] = not deleteProjectiles[deleteKey]
+        print(string.format("[Toggle] deleteProjectiles['%s'] set to: %s", deleteKey, tostring(deleteProjectiles[deleteKey])))
+    end
 
-	if not validKey and not deleteKey then
-		warn(string.format("[Toggle Error] Projectile '%s' not found in configuration tables.", inputName))
-	end
+    if not validKey and not deleteKey then
+        warn(string.format("[Toggle Error] Projectile '%s' not found in configuration tables.", inputName))
+    end
 end
 
 local function setDeleteState(inputName)
-	local lowerInput = string.lower(inputName)
-	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
-	local validKey = findProjectileKey(validProjectiles, lowerInput)
+    local lowerInput = string.lower(inputName)
+    local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+    local validKey = findProjectileKey(validProjectiles, lowerInput)
 
-	local targetKey = deleteKey or validKey or inputName
+    local targetKey = deleteKey or validKey or inputName
 
-	if validKey then
-		validProjectiles[validKey] = false
-	end
+    if validKey then
+        validProjectiles[validKey] = false
+    end
 
-	deleteProjectiles[targetKey] = not (deleteProjectiles[targetKey] or false)
-	print(string.format("[Delete Command] deleteProjectiles['%s'] set to: %s", targetKey, tostring(deleteProjectiles[targetKey])))
+    deleteProjectiles[targetKey] = not (deleteProjectiles[targetKey] or false)
+    print(string.format("[Delete Command] deleteProjectiles['%s'] set to: %s", targetKey, tostring(deleteProjectiles[targetKey])))
 end
 
 local function setValidState(inputName)
-	local lowerInput = string.lower(inputName)
-	local validKey = findProjectileKey(validProjectiles, lowerInput)
-	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+    local lowerInput = string.lower(inputName)
+    local validKey = findProjectileKey(validProjectiles, lowerInput)
+    local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
 
-	local targetKey = validKey or deleteKey or inputName
+    local targetKey = validKey or deleteKey or inputName
 
-	if deleteKey then
-		deleteProjectiles[deleteKey] = false
-	end
+    if deleteKey then
+        deleteProjectiles[deleteKey] = false
+    end
 
-	validProjectiles[targetKey] = not (validProjectiles[targetKey] or false)
-	print(string.format("[Valid Command] validProjectiles['%s'] set to: %s", targetKey, tostring(validProjectiles[targetKey])))
+    validProjectiles[targetKey] = not (validProjectiles[targetKey] or false)
+    print(string.format("[Valid Command] validProjectiles['%s'] set to: %s", targetKey, tostring(validProjectiles[targetKey])))
 end
 
 task.spawn(function()
-	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 
-	localPlayer.Chatted:Connect(function(msg)
-		local split = string.split(msg, " ")
-		local cmd = split[1] and string.lower(split[1])
-		local targetName = split[2]
+    localPlayer.Chatted:Connect(function(msg)
+        local split = string.split(msg, " ")
+        local cmd = split[1] and string.lower(split[1])
+        local targetName = split[2]
 
-		if cmd == "/god" then
-			toggleGodMode()
-		elseif targetName then
-			if cmd == "/toggle" then
-				toggleProjectileState(targetName)
-			elseif cmd == "/delete" or cmd == "/del" then
-				setDeleteState(targetName)
-			elseif cmd == "/valid" then
-				setValidState(targetName)
-			end
-		end
-	end)
+        if cmd == "/god" then
+            godModeActive = not godModeActive
+            if godModeActive then
+                for _, desc in ipairs(friendlyFolder:GetDescendants()) do
+                    if desc:IsA("Model") then removeFriendlyRoot(desc) end
+                end
+            end
+        elseif targetName then
+            if cmd == "/toggle" then
+                toggleProjectileState(targetName)
+            elseif cmd == "/delete" or cmd == "/del" then
+                setDeleteState(targetName)
+            elseif cmd == "/valid" then
+                setValidState(targetName)
+            end
+        end
+    end)
 end)
 
 --------------------------------------------------
 -- HELPER FUNCTIONS
 --------------------------------------------------
-
 local function getProjectileRoot(obj)
-	if obj:IsA("BasePart") then
-		return obj
-	elseif obj:IsA("Model") then
-		if obj.PrimaryPart then return obj.PrimaryPart end
-		return obj:FindFirstChildWhichIsA("BasePart", false)
-	end
-	return nil
+    if obj:IsA("BasePart") then
+        return obj
+    elseif obj:IsA("Model") then
+        if obj.PrimaryPart then return obj.PrimaryPart end
+        return obj:FindFirstChildWhichIsA("BasePart", false)
+    end
+    return nil
 end
 
 local function removeTouchInterests(obj)
-	for _, descendant in ipairs(obj:GetDescendants()) do
-		if descendant:IsA("TouchInterest") then
-			descendant:Destroy()
-		end
-	end
+    for _, descendant in ipairs(obj:GetDescendants()) do
+        if descendant:IsA("TouchInterest") then
+            descendant:Destroy()
+        end
+    end
 end
 
 --------------------------------------------------
--- TARGETING (OPTIMIZED & SAFE BASE DETECTOR)
+-- TARGETING
 --------------------------------------------------
-
 local function getRedBaseTarget()
-	local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
-	local redBase = baseFolder and baseFolder:FindFirstChild("Red Base") or Workspace:FindFirstChild("Red Base")
+    local baseFolder = npcFolder:FindFirstChild("BaseFolder") or Workspace:FindFirstChild("BaseFolder")
+    local redBase = baseFolder and baseFolder:FindFirstChild("Red Base") or Workspace:FindFirstChild("Red Base")
 
-	if not redBase then return nil end
+    if not redBase then return nil end
 
-	if redBase:IsA("BasePart") then
-		return redBase
-	end
+    if redBase:IsA("BasePart") then
+        return redBase
+    end
 
-	local targetPart = redBase:FindFirstChild("MainHitbox")
-		or redBase:FindFirstChild("Hitbox")
-		or redBase:FindFirstChild("HumanoidRootPart")
-		or redBase:FindFirstChild("Base")
-		or redBase:FindFirstChild("Core")
+    local targetPart = redBase:FindFirstChild("MainHitbox")
+        or redBase:FindFirstChild("Hitbox")
+        or redBase:FindFirstChild("HumanoidRootPart")
+        or redBase:FindFirstChild("Base")
+        or redBase:FindFirstChild("Core")
 
-	if targetPart and targetPart:IsA("BasePart") then
-		return targetPart
-	end
+    if targetPart and targetPart:IsA("BasePart") then
+        return targetPart
+    end
 
-	if redBase:IsA("Model") then
-		if redBase.PrimaryPart then
-			return redBase.PrimaryPart
-		end
-		return redBase:FindFirstChildWhichIsA("BasePart", false)
-	end
+    if redBase:IsA("Model") then
+        if redBase.PrimaryPart then
+            return redBase.PrimaryPart
+        end
+        return redBase:FindFirstChildWhichIsA("BasePart", false)
+    end
 
-	return nil
+    return nil
 end
 
 local function getNearestTarget(position)
-	local nearestPart = nil
-	local nearestDistance = math.huge
+    local nearestPart = nil
+    local nearestDistance = math.huge
 
-	for _, npc in ipairs(enemyFolder:GetChildren()) do
-		if npc:IsA("Model") then
-			local humanoid = npc:FindFirstChildOfClass("Humanoid")
-			local root = npc:FindFirstChild("HumanoidRootPart") or npc.PrimaryPart
-			local isIgnored = ignoredNPCs[npc.Name] or npc:GetAttribute("Ignored")
+    for _, npc in ipairs(enemyFolder:GetChildren()) do
+        if npc:IsA("Model") then
+            local humanoid = npc:FindFirstChildOfClass("Humanoid")
+            local root = npc:FindFirstChild("HumanoidRootPart") or npc.PrimaryPart
+            local isIgnored = ignoredNPCs[npc.Name] or npc:GetAttribute("Ignored")
 
-			if humanoid and humanoid.Health > 0 and root and not isIgnored then
-				local distance = (root.Position - position).Magnitude
-				if distance < nearestDistance then
-					nearestDistance = distance
-					nearestPart = npc:FindFirstChild("Hitbox") or root
-				end
-			end
-		end
-	end
+            if humanoid and humanoid.Health > 0 and root and not isIgnored then
+                local distance = (root.Position - position).Magnitude
+                if distance < nearestDistance then
+                    nearestDistance = distance
+                    nearestPart = npc:FindFirstChild("Hitbox") or root
+                end
+            end
+        end
+    end
 
-	if nearestPart then
-		return nearestPart
-	end
+    if nearestPart then
+        return nearestPart
+    end
 
-	return getRedBaseTarget()
+    return getRedBaseTarget()
 end
 
 --------------------------------------------------
 -- WAIT TO MOVE UI SYSTEM
 --------------------------------------------------
-
 local function createWaitToMoveUI(npc)
-	if not npc:IsA("Model") then return end
+    if not npc:IsA("Model") then return end
 
-	local head = npc:FindFirstChild("Head") 
-		or npc.PrimaryPart 
-		or npc:FindFirstChildWhichIsA("BasePart", false)
+    local head = npc:FindFirstChild("Head") 
+        or npc.PrimaryPart 
+        or npc:FindFirstChildWhichIsA("BasePart", false)
 
-	if not head or head:FindFirstChild(UI_WAIT_TO_MOVE_NAME) then return end
+    if not head or head:FindFirstChild(UI_WAIT_TO_MOVE_NAME) then return end
 
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = UI_WAIT_TO_MOVE_NAME
-	billboard.Adornee = head
-	billboard.Size = UDim2.new(0, 160, 0, 30)
-	billboard.StudsOffset = Vector3.new(0, 4.5, 0)
-	billboard.AlwaysOnTop = true
-	billboard.Enabled = false
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = UI_WAIT_TO_MOVE_NAME
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 160, 0, 30)
+    billboard.StudsOffset = Vector3.new(0, 4.5, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Enabled = false
 
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.TextColor3 = Color3.fromRGB(255, 230, 80)
-	textLabel.TextStrokeTransparency = 0
-	textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	textLabel.Font = Enum.Font.GothamBold
-	textLabel.TextSize = 14
-	textLabel.Parent = billboard
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextColor3 = Color3.fromRGB(255, 230, 80)
+    textLabel.TextStrokeTransparency = 0
+    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+    textLabel.Font = Enum.Font.GothamBold
+    textLabel.TextSize = 14
+    textLabel.Parent = billboard
 
-	billboard.Parent = head
+    billboard.Parent = head
 
-	local connections = {}
+    local connections = {}
 
-	local function cleanup()
-		for _, conn in ipairs(connections) do conn:Disconnect() end
-		table.clear(connections)
-		if billboard and billboard.Parent then billboard:Destroy() end
-	end
+    local function cleanup()
+        for _, conn in ipairs(connections) do conn:Disconnect() end
+        table.clear(connections)
+        if billboard and billboard.Parent then billboard:Destroy() end
+    end
 
-	local function updateText()
-		local waitValue = npc:GetAttribute("WaitToMove")
-		if waitValue ~= nil then
-			textLabel.Text = string.format("WaitToMove: %s", tostring(waitValue))
-			billboard.Enabled = true
-		else
-			billboard.Enabled = false
-		end
-	end
+    local function updateText()
+        local waitValue = npc:GetAttribute("WaitToMove")
+        if waitValue ~= nil then
+            textLabel.Text = string.format("WaitToMove: %s", tostring(waitValue))
+            billboard.Enabled = true
+        else
+            billboard.Enabled = false
+        end
+    end
 
-	table.insert(connections, npc:GetAttributeChangedSignal("WaitToMove"):Connect(updateText))
-	updateText()
+    table.insert(connections, npc:GetAttributeChangedSignal("WaitToMove"):Connect(updateText))
+    updateText()
 
-	local humanoid = npc:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		table.insert(connections, humanoid.Died:Connect(cleanup))
-	end
-	table.insert(connections, npc.Destroying:Connect(cleanup))
+    local humanoid = npc:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        table.insert(connections, humanoid.Died:Connect(cleanup))
+    end
+    table.insert(connections, npc.Destroying:Connect(cleanup))
 end
 
 --------------------------------------------------
 -- HP BAR SYSTEM
 --------------------------------------------------
-
 local function createHPBar(npc, template, barName)
-	if not template or not npc:IsA("Model") then return end
+    if not template or not npc:IsA("Model") then return end
 
-	local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
-	local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
+    local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
+    local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
 
-	if not humanoid or not head then return end
-	if head:FindFirstChild(barName) then return end
+    if not humanoid or not head then return end
+    if head:FindFirstChild(barName) then return end
 
-	local hpBar = template:Clone()
-	hpBar.Name = barName
+    local hpBar = template:Clone()
+    hpBar.Name = barName
 
-	local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
-	if billboard then
-		billboard.Adornee = head
-		billboard.AlwaysOnTop = true
-		billboard.StudsOffset = Vector3.new(0, 0, 0)
-		billboard.Enabled = true
-	end
+    local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
+    if billboard then
+        billboard.Adornee = head
+        billboard.AlwaysOnTop = true
+        billboard.StudsOffset = Vector3.new(0, 0, 0)
+        billboard.Enabled = true
+    end
 
-	local bar = hpBar:FindFirstChild("Bar", true)
-	local textLabel = hpBar:FindFirstChild("TextLabel", true)
+    local bar = hpBar:FindFirstChild("Bar", true)
+    local textLabel = hpBar:FindFirstChild("TextLabel", true)
 
-	if not bar then
-		hpBar:Destroy()
-		return
-	end
+    if not bar then
+        hpBar:Destroy()
+        return
+    end
 
-	hpBar.Parent = head
-	local originalYScale = bar.Size.Y.Scale
-	local originalYOffset = bar.Size.Y.Offset
+    hpBar.Parent = head
+    local originalYScale = bar.Size.Y.Scale
+    local originalYOffset = bar.Size.Y.Offset
 
-	bar.AnchorPoint = Vector2.new(0, bar.AnchorPoint.Y)
-	bar.Position = UDim2.new(0, 0, bar.Position.Y.Scale, bar.Position.Y.Offset)
+    bar.AnchorPoint = Vector2.new(0, bar.AnchorPoint.Y)
+    bar.Position = UDim2.new(0, 0, bar.Position.Y.Scale, bar.Position.Y.Offset)
 
-	local function update()
-		if not humanoid or not humanoid.Parent then return end
-		local health = math.max(humanoid.Health, 0)
-		local maxHealth = humanoid.MaxHealth
+    local function update()
+        if not humanoid or not humanoid.Parent then return end
+        local health = math.max(humanoid.Health, 0)
+        local maxHealth = humanoid.MaxHealth
 
-		if textLabel then textLabel.Text = string.format("%d/%d", math.floor(health), math.floor(maxHealth)) end
+        if textLabel then textLabel.Text = string.format("%d/%d", math.floor(health), math.floor(maxHealth)) end
 
-		if health <= 0 or maxHealth <= 0 then
-			bar.Size = UDim2.new(0, 0, originalYScale, originalYOffset)
-			if billboard then billboard.Enabled = false end
-			return
-		end
+        if health <= 0 or maxHealth <= 0 then
+            bar.Size = UDim2.new(0, 0, originalYScale, originalYOffset)
+            if billboard then billboard.Enabled = false end
+            return
+        end
 
-		if billboard then billboard.Enabled = true end
-		local percentage = math.clamp(health / maxHealth, 0, 1)
-		bar.Size = UDim2.new(percentage, 0, originalYScale, originalYOffset)
-	end
+        if billboard then billboard.Enabled = true end
+        local percentage = math.clamp(health / maxHealth, 0, 1)
+        bar.Size = UDim2.new(percentage, 0, originalYScale, originalYOffset)
+    end
 
-	update()
+    update()
 
-	local connections = {}
-	local function cleanup()
-		for _, conn in ipairs(connections) do conn:Disconnect() end
-		table.clear(connections)
-		if hpBar and hpBar.Parent then hpBar:Destroy() end
-	end
+    local connections = {}
+    local function cleanup()
+        for _, conn in ipairs(connections) do conn:Disconnect() end
+        table.clear(connections)
+        if hpBar and hpBar.Parent then hpBar:Destroy() end
+    end
 
-	table.insert(connections, humanoid.HealthChanged:Connect(update))
-	table.insert(connections, humanoid.Died:Connect(cleanup))
-	table.insert(connections, npc.Destroying:Connect(cleanup))
+    table.insert(connections, humanoid.HealthChanged:Connect(update))
+    table.insert(connections, humanoid.Died:Connect(cleanup))
+    table.insert(connections, npc.Destroying:Connect(cleanup))
 end
 
 local function setupNPC(npc)
-	if not npc:IsA("Model") then return end
-	
-	if npc:IsDescendantOf(enemyFolder) then
-		createWaitToMoveUI(npc)
-	elseif npc:IsDescendantOf(friendlyFolder) then
-		removeFriendlyRoot(npc)
-	end
+    if not npc:IsA("Model") then return end
+    
+    if npc:IsDescendantOf(enemyFolder) then
+        createWaitToMoveUI(npc)
+    elseif npc:IsDescendantOf(friendlyFolder) then
+        removeFriendlyRoot(npc)
+    end
 
-	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
-		createHPBar(npc, bossTemplate, "BossHPBar")
-	elseif npc:IsDescendantOf(enemyFolder) then
-		createHPBar(npc, enemyTemplate, "EnemyHPBar")
-	elseif npc:IsDescendantOf(friendlyFolder) then
-		createHPBar(npc, friendlyTemplate, "FriendlyHPBar")
-	end
+    if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
+        createHPBar(npc, bossTemplate, "BossHPBar")
+    elseif npc:IsDescendantOf(enemyFolder) then
+        createHPBar(npc, enemyTemplate, "EnemyHPBar")
+    elseif npc:IsDescendantOf(friendlyFolder) then
+        createHPBar(npc, friendlyTemplate, "FriendlyHPBar")
+    end
 end
 
 --------------------------------------------------
 -- PROJECTILE LOGIC
 --------------------------------------------------
-
 local function handleProjectile(obj)
-	if activeProjectiles[obj] then return end
+    if activeProjectiles[obj] then return end
 
-	local root = getProjectileRoot(obj)
-	if not root then return end
+    local root = getProjectileRoot(obj)
+    if not root then return end
 
-	activeProjectiles[obj] = root
-	removeTouchInterests(obj)
+    activeProjectiles[obj] = root
+    removeTouchInterests(obj)
 
-	local attachment = root:FindFirstChild("SpinAttachment") or Instance.new("Attachment")
-	attachment.Name = "SpinAttachment"
-	attachment.Parent = root
+    local attachment = root:FindFirstChild("SpinAttachment") or Instance.new("Attachment")
+    attachment.Name = "SpinAttachment"
+    attachment.Parent = root
 
-	local angularVel = root:FindFirstChild("ProjectileSpin") or Instance.new("AngularVelocity")
-	angularVel.Name = "ProjectileSpin"
-	angularVel.Attachment0 = attachment
-	angularVel.MaxTorque = 1000000
-	angularVel.AngularVelocity = Vector3.new(-40, 0, 0)
-	angularVel.RelativeTo = Enum.RelativeTo.World
-	angularVel.Parent = root
+    local angularVel = root:FindFirstChild("ProjectileSpin") or Instance.new("AngularVelocity")
+    angularVel.Name = "ProjectileSpin"
+    angularVel.Attachment0 = attachment
+    angularVel.MaxTorque = 1000000
+    angularVel.AngularVelocity = Vector3.new(-40, 0, 0)
+    angularVel.RelativeTo = Enum.RelativeTo.World
+    angularVel.Parent = root
 
-	obj.Destroying:Once(function()
-		activeProjectiles[obj] = nil
-	end)
+    obj.Destroying:Once(function()
+        activeProjectiles[obj] = nil
+    end)
 end
 
 local function processProjectile(obj)
-	task.defer(function()
-		if not obj or not obj.Parent then return end
+    task.defer(function()
+        if not obj or not obj.Parent then return end
 
-		if deleteProjectiles[obj.Name] == true then
-			obj:Destroy()
-		elseif validProjectiles[obj.Name] == true then
-			handleProjectile(obj)
-		end
-	end)
+        if deleteProjectiles[obj.Name] == true then
+            obj:Destroy()
+        elseif validProjectiles[obj.Name] == true then
+            handleProjectile(obj)
+        end
+    end)
 end
 
 --------------------------------------------------
 -- LISTENERS & BACKGROUND LOOPS
 --------------------------------------------------
-
--- Initial Scan
 for _, desc in ipairs(friendlyFolder:GetDescendants()) do
-	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
+    if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 for _, desc in ipairs(enemyFolder:GetDescendants()) do
-	if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
+    if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
 end
 
--- Child/Descendant Added Scans
 friendlyFolder.ChildAdded:Connect(function(child)
-	if child:IsA("Model") then
-		task.delay(0.1, function() setupNPC(child) end)
-	end
+    if child:IsA("Model") then
+        task.delay(0.1, function() setupNPC(child) end)
+    end
 end)
 
 enemyFolder.ChildAdded:Connect(function(child)
-	if child:IsA("Model") then
-		task.delay(0.1, function() setupNPC(child) end)
-	end
+    if child:IsA("Model") then
+        task.delay(0.1, function() setupNPC(child) end)
+    end
 end)
 
 CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
-	task.delay(0.1, function()
-		if object:IsDescendantOf(enemyFolder) then setupNPC(object) end
-	end)
+    task.delay(0.1, function()
+        if object:IsDescendantOf(enemyFolder) then setupNPC(object) end
+    end)
 end)
 
--- Process Projectiles
 for _, obj in ipairs(projectileFolder:GetChildren()) do processProjectile(obj) end
 projectileFolder.ChildAdded:Connect(processProjectile)
 
--- Teleport Up Loop
 task.spawn(function()
-	while true do
-		task.wait(0.2)
-		for _, obj in ipairs(projectileFolder:GetChildren()) do
-			if teleportUpProjectiles[obj.Name] then
-				if obj:IsA("Model") then
-					obj:PivotTo(obj:GetPivot() + Vector3.new(0, 500, 0))
-				else
-					local root = getProjectileRoot(obj)
-					if root then
-						root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
-					end
-				end
-			end
-		end
-	end
+    while true do
+        task.wait(0.2)
+        for _, obj in ipairs(projectileFolder:GetChildren()) do
+            if teleportUpProjectiles[obj.Name] then
+                if obj:IsA("Model") then
+                    obj:PivotTo(obj:GetPivot() + Vector3.new(0, 500, 0))
+                else
+                    local root = getProjectileRoot(obj)
+                    if root then
+                        root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
+                    end
+                end
+            end
+        end
+    end
 end)
 
--- Continuous God Mode Loop (Ensures HumanoidRootParts stay deleted)
 task.spawn(function()
-	while true do
-		task.wait(0.2)
-		if godModeActive then
-			for _, npc in ipairs(friendlyFolder:GetChildren()) do
-				if npc:IsA("Model") then
-					removeFriendlyRoot(npc)
-				end
-			end
-		end
-	end
+    while true do
+        task.wait(0.2)
+        if godModeActive then
+            for _, npc in ipairs(friendlyFolder:GetChildren()) do
+                if npc:IsA("Model") then
+                    removeFriendlyRoot(npc)
+                end
+            end
+        end
+    end
 end)
 
 --------------------------------------------------
 -- MAIN ENGINE LOOP
 --------------------------------------------------
-
 RunService.Heartbeat:Connect(function()
-	for projectile, root in pairs(activeProjectiles) do
-		if not projectile or not projectile.Parent or not root or not root.Parent then
-			activeProjectiles[projectile] = nil
-			continue
-		end
+    for projectile, root in pairs(activeProjectiles) do
+        if not projectile or not projectile.Parent or not root or not root.Parent then
+            activeProjectiles[projectile] = nil
+            continue
+        end
 
-		local position = root.Position
-		local targetPart = getNearestTarget(position)
+        local position = root.Position
+        local targetPart = getNearestTarget(position)
 
-		if targetPart and targetPart:IsA("BasePart") and targetPart.Parent then
-			if projectile:IsA("Model") then
-				projectile:PivotTo(targetPart.CFrame)
-			else
-				root.CFrame = targetPart.CFrame
-			end
-		end
-	end
+        if targetPart and targetPart:IsA("BasePart") and targetPart.Parent then
+            if projectile:IsA("Model") then
+                projectile:PivotTo(targetPart.CFrame)
+            else
+                root.CFrame = targetPart.CFrame
+            end
+        end
+    end
 end)
 
 --------------------------------------------------
 -- TIMER SPAWN TRIGGER LOGIC
 --------------------------------------------------
-
 task.spawn(function()
-	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-	local playerGui = localPlayer:WaitForChild("PlayerGui")
+    local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+    local playerGui = localPlayer:WaitForChild("PlayerGui")
 
-	local eventsFolder = ReplicatedStorage:WaitForChild("Events")
-	local remoteFunctionFolder = eventsFolder:WaitForChild("RemoteFunction")
-	local playerSpawnRemote = remoteFunctionFolder:WaitForChild("PlayerSpawn")
+    local eventsFolder = ReplicatedStorage:WaitForChild("Events")
+    local remoteFunctionFolder = eventsFolder:WaitForChild("RemoteFunction")
+    local playerSpawnRemote = remoteFunctionFolder:WaitForChild("PlayerSpawn")
 
-	local hasFired = false
-	local currentConnection = nil
+    local hasFired = false
+    local currentConnection = nil
 
-	local function hookTimerLabel()
-		if currentConnection then
-			currentConnection:Disconnect()
-			currentConnection = nil
-		end
+    local function hookTimerLabel()
+        if currentConnection then
+            currentConnection:Disconnect()
+            currentConnection = nil
+        end
 
-		local battleScreen = playerGui:WaitForChild("BattleScreen", 10)
-		if not battleScreen then return end
+        local battleScreen = playerGui:WaitForChild("BattleScreen", 10)
+        if not battleScreen then return end
 
-		local bankButton = battleScreen:WaitForChild("BankButton", 10)
-		if not bankButton then return end
+        local bankButton = battleScreen:WaitForChild("BankButton", 10)
+        if not bankButton then return end
 
-		local timerLabel = bankButton:WaitForChild("Timer", 10)
-		if not timerLabel then return end
+        local timerLabel = bankButton:WaitForChild("Timer", 10)
+        if not timerLabel then return end
 
-		local function checkTimer()
-			if timerLabel.Text == "0:00" and not hasFired then
-				hasFired = true
-				
-				local args = {
-					[1] = "Bank"
-				}
-				playerSpawnRemote:InvokeServer(unpack(args))
-			elseif timerLabel.Text ~= "0:00" then
-				hasFired = false
-			end
-		end
+        local function checkTimer()
+            if timerLabel.Text == "0:00" and not hasFired then
+                hasFired = true
+                
+                local args = {
+                    [1] = "Bank"
+                }
+                playerSpawnRemote:InvokeServer(unpack(args))
+            elseif timerLabel.Text ~= "0:00" then
+                hasFired = false
+            end
+        end
 
-		currentConnection = timerLabel:GetPropertyChangedSignal("Text"):Connect(checkTimer)
-		
-		timerLabel.Destroying:Once(function()
-			if currentConnection then
-				currentConnection:Disconnect()
-				currentConnection = nil
-			end
-		end)
+        currentConnection = timerLabel:GetPropertyChangedSignal("Text"):Connect(checkTimer)
+        
+        timerLabel.Destroying:Once(function()
+            if currentConnection then
+                currentConnection:Disconnect()
+                currentConnection = nil
+            end
+        end)
 
-		checkTimer()
-	end
+        checkTimer()
+    end
 
-	hookTimerLabel()
+    hookTimerLabel()
 
-	playerGui.DescendantAdded:Connect(function(descendant)
-		if descendant.Name == "Timer" and descendant:IsA("TextLabel") then
-			task.delay(0.1, hookTimerLabel)
-		end
-	end)
+    playerGui.DescendantAdded:Connect(function(descendant)
+        if descendant.Name == "Timer" and descendant:IsA("TextLabel") then
+            task.delay(0.1, hookTimerLabel)
+        end
+    end)
 end)
+
+Rayfield:LoadConfiguration()
