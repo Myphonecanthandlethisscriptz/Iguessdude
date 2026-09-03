@@ -28,7 +28,7 @@ local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
 local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
--- CONFIGURATIONS & STATE
+-- CONFIGURATIONS
 --------------------------------------------------
 
 local validProjectiles = {
@@ -77,9 +77,94 @@ local ignoredNPCs = {
 
 local activeProjectiles = {}
 local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
-local UI_ARMOR_NAME = "ArmorDisplay"
 
-local showArmor = false -- Toggled via /armor chat command
+--------------------------------------------------
+-- CHAT COMMAND SYSTEM
+--------------------------------------------------
+
+local function findProjectileKey(targetTable, lowerInput)
+	for key in pairs(targetTable) do
+		if string.lower(key) == lowerInput then
+			return key
+		end
+	end
+	return nil
+end
+
+local function toggleProjectileState(inputName)
+	local lowerInput = string.lower(inputName)
+	local validKey = findProjectileKey(validProjectiles, lowerInput)
+	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+
+	if validKey then
+		validProjectiles[validKey] = not validProjectiles[validKey]
+		print(string.format("[Toggle] validProjectiles['%s'] set to: %s", validKey, tostring(validProjectiles[validKey])))
+	end
+
+	if deleteKey then
+		deleteProjectiles[deleteKey] = not deleteProjectiles[deleteKey]
+		print(string.format("[Toggle] deleteProjectiles['%s'] set to: %s", deleteKey, tostring(deleteProjectiles[deleteKey])))
+	end
+
+	if not validKey and not deleteKey then
+		warn(string.format("[Toggle Error] Projectile '%s' not found in configuration tables.", inputName))
+	end
+end
+
+local function setDeleteState(inputName)
+	local lowerInput = string.lower(inputName)
+	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+	local validKey = findProjectileKey(validProjectiles, lowerInput)
+
+	-- Check if key already exists, otherwise format name correctly
+	local targetKey = deleteKey or validKey or inputName
+
+	-- Turn off in valid table if it was there
+	if validKey then
+		validProjectiles[validKey] = false
+	end
+
+	-- Toggle or Set to true in delete table
+	deleteProjectiles[targetKey] = not (deleteProjectiles[targetKey] or false)
+	print(string.format("[Delete Command] deleteProjectiles['%s'] set to: %s", targetKey, tostring(deleteProjectiles[targetKey])))
+end
+
+local function setValidState(inputName)
+	local lowerInput = string.lower(inputName)
+	local validKey = findProjectileKey(validProjectiles, lowerInput)
+	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
+
+	local targetKey = validKey or deleteKey or inputName
+
+	-- Turn off in delete table if it was there
+	if deleteKey then
+		deleteProjectiles[deleteKey] = false
+	end
+
+	-- Toggle or Set to true in valid table
+	validProjectiles[targetKey] = not (validProjectiles[targetKey] or false)
+	print(string.format("[Valid Command] validProjectiles['%s'] set to: %s", targetKey, tostring(validProjectiles[targetKey])))
+end
+
+task.spawn(function()
+	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
+
+	localPlayer.Chatted:Connect(function(msg)
+		local split = string.split(msg, " ")
+		local cmd = split[1] and string.lower(split[1])
+		local targetName = split[2]
+
+		if not targetName then return end
+
+		if cmd == "/toggle" then
+			toggleProjectileState(targetName)
+		elseif cmd == "/delete" or cmd == "/del" then
+			setDeleteState(targetName)
+		elseif cmd == "/valid" then
+			setValidState(targetName)
+		end
+	end)
+end)
 
 --------------------------------------------------
 -- HELPER FUNCTIONS
@@ -226,97 +311,6 @@ local function createWaitToMoveUI(npc)
 end
 
 --------------------------------------------------
--- ARMOR DISPLAY UI SYSTEM
---------------------------------------------------
-
-local function createArmorUI(npc)
-	if not npc:IsA("Model") then return end
-
-	local head = npc:FindFirstChild("Head") 
-		or npc.PrimaryPart 
-		or npc:FindFirstChildWhichIsA("BasePart", false)
-
-	if not head or head:FindFirstChild(UI_ARMOR_NAME) then return end
-
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = UI_ARMOR_NAME
-	billboard.Adornee = head
-	billboard.Size = UDim2.new(0, 160, 0, 30)
-	billboard.StudsOffset = Vector3.new(0, 6.0, 0) -- Higher up so it doesn't overlap WaitToMove or HP bar
-	billboard.AlwaysOnTop = true
-	billboard.Enabled = showArmor
-
-	local textLabel = Instance.new("TextLabel")
-	textLabel.Size = UDim2.new(1, 0, 1, 0)
-	textLabel.BackgroundTransparency = 1
-	textLabel.TextColor3 = Color3.fromRGB(100, 200, 255) -- Cyan/Blue accent for Armor
-	textLabel.TextStrokeTransparency = 0
-	textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	textLabel.Font = Enum.Font.GothamBold
-	textLabel.TextSize = 14
-	textLabel.Parent = billboard
-
-	billboard.Parent = head
-
-	local connections = {}
-
-	local function cleanup()
-		for _, conn in ipairs(connections) do conn:Disconnect() end
-		table.clear(connections)
-		if billboard and billboard.Parent then billboard:Destroy() end
-	end
-
-	local function updateText()
-		local armorValue = npc:GetAttribute("Armour") or npc:GetAttribute("Armor") or 0
-		textLabel.Text = string.format("Armour: %s", tostring(armorValue))
-		billboard.Enabled = showArmor
-	end
-
-	table.insert(connections, npc:GetAttributeChangedSignal("Armour"):Connect(updateText))
-	table.insert(connections, npc:GetAttributeChangedSignal("Armor"):Connect(updateText))
-	updateText()
-
-	local humanoid = npc:FindFirstChildOfClass("Humanoid")
-	if humanoid then
-		table.insert(connections, humanoid.Died:Connect(cleanup))
-	end
-	table.insert(connections, npc.Destroying:Connect(cleanup))
-end
-
-local function toggleArmorDisplays()
-	showArmor = not showArmor
-	for _, npc in ipairs(enemyFolder:GetChildren()) do
-		if npc:IsA("Model") then
-			local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
-			if head then
-				local armorGui = head:FindFirstChild(UI_ARMOR_NAME)
-				if armorGui then
-					armorGui.Enabled = showArmor
-				end
-			end
-		end
-	end
-end
-
---------------------------------------------------
--- CHAT COMMAND LISTENER (/armor)
---------------------------------------------------
-
-task.spawn(function()
-	local localPlayer = Players.LocalPlayer or Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
-
-	local function setupChat(player)
-		player.Chatted:Connect(function(msg)
-			if string.lower(msg) == "/armor" then
-				toggleArmorDisplays()
-			end
-		end)
-	end
-
-	setupChat(localPlayer)
-end)
-
---------------------------------------------------
 -- HP BAR SYSTEM
 --------------------------------------------------
 
@@ -392,7 +386,6 @@ local function setupNPC(npc)
 	
 	if npc:IsDescendantOf(enemyFolder) then
 		createWaitToMoveUI(npc)
-		createArmorUI(npc)
 	end
 
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
@@ -438,9 +431,9 @@ local function processProjectile(obj)
 	task.defer(function()
 		if not obj or not obj.Parent then return end
 
-		if deleteProjectiles[obj.Name] then
+		if deleteProjectiles[obj.Name] == true then
 			obj:Destroy()
-		elseif validProjectiles[obj.Name] then
+		elseif validProjectiles[obj.Name] == true then
 			handleProjectile(obj)
 		end
 	end)
