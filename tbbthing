@@ -240,6 +240,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 
+local Events = ReplicatedStorage:FindFirstChild("Events")
+local RemoteEvents = Events and Events:FindFirstChild("RemoteEvents")
+local AddHPBars = RemoteEvents and RemoteEvents:FindFirstChild("AddHPBars")
+
 local npcFolder = Workspace:WaitForChild("NPCFolders", 10)
 if not npcFolder then warn("[Error] 'NPCFolders' missing!"); return end
 
@@ -251,13 +255,6 @@ if not enemyFolder or not friendlyFolder or not projectileFolder then
     warn("[Error] Subfolders missing.")
     return
 end
-
-local visualsFolder = ReplicatedStorage:WaitForChild("Visuals", 10)
-local hpBars = visualsFolder and visualsFolder:WaitForChild("HPBars", 10)
-
-local friendlyTemplate = hpBars and hpBars:WaitForChild("Friendly", 5)
-local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
-local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
 -- CONFIGURATIONS & STATE
@@ -309,6 +306,7 @@ local ignoredNPCs = {
 local activeProjectiles = {}
 local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
 local godModeActive = false
+local ProcessedNPCs = {}
 
 --------------------------------------------------
 -- GOD MODE SYSTEM
@@ -570,90 +568,35 @@ local function createWaitToMoveUI(npc)
 end
 
 --------------------------------------------------
--- HP BAR SYSTEM
+-- HP BAR SYSTEM (FIRESIGNAL METHOD)
 --------------------------------------------------
-local function createHPBar(npc, template, barName)
-    if not template or not npc:IsA("Model") then return end
-
-    local humanoid = npc:FindFirstChildOfClass("Humanoid") or npc:WaitForChild("Humanoid", 2)
-    local head = npc:FindFirstChild("Head") or npc.PrimaryPart or npc:FindFirstChildWhichIsA("BasePart", false)
-
-    if not humanoid or not head then return end
-    if head:FindFirstChild(barName) then return end
-
-    local hpBar = template:Clone()
-    hpBar.Name = barName
-
-    local billboard = hpBar:IsA("BillboardGui") and hpBar or hpBar:FindFirstChildWhichIsA("BillboardGui", true)
-    if billboard then
-        billboard.Adornee = head
-        billboard.AlwaysOnTop = true
-        billboard.StudsOffset = Vector3.new(0, 0, 0)
-        billboard.Enabled = true
+local function GetHealthbarType(npc, defaultBarType)
+    if CollectionService:HasTag(npc, "Friendly") then
+        return "Friendly"
     end
-
-    local bar = hpBar:FindFirstChild("Bar", true)
-    local textLabel = hpBar:FindFirstChild("TextLabel", true)
-
-    if not bar then
-        hpBar:Destroy()
-        return
+    if CollectionService:HasTag(npc, "Boss") then
+        return "Boss"
     end
-
-    hpBar.Parent = head
-    local originalYScale = bar.Size.Y.Scale
-    local originalYOffset = bar.Size.Y.Offset
-
-    bar.AnchorPoint = Vector2.new(0, bar.AnchorPoint.Y)
-    bar.Position = UDim2.new(0, 0, bar.Position.Y.Scale, bar.Position.Y.Offset)
-
-    local function update()
-        if not humanoid or not humanoid.Parent then return end
-        local health = math.max(humanoid.Health, 0)
-        local maxHealth = humanoid.MaxHealth
-
-        if textLabel then textLabel.Text = string.format("%d/%d", math.floor(health), math.floor(maxHealth)) end
-
-        if health <= 0 or maxHealth <= 0 then
-            bar.Size = UDim2.new(0, 0, originalYScale, originalYOffset)
-            if billboard then billboard.Enabled = false end
-            return
-        end
-
-        if billboard then billboard.Enabled = true end
-        local percentage = math.clamp(health / maxHealth, 0, 1)
-        bar.Size = UDim2.new(percentage, 0, originalYScale, originalYOffset)
-    end
-
-    update()
-
-    local connections = {}
-    local function cleanup()
-        for _, conn in ipairs(connections) do conn:Disconnect() end
-        table.clear(connections)
-        if hpBar and hpBar.Parent then hpBar:Destroy() end
-    end
-
-    table.insert(connections, humanoid.HealthChanged:Connect(update))
-    table.insert(connections, humanoid.Died:Connect(cleanup))
-    table.insert(connections, npc.Destroying:Connect(cleanup))
+    return defaultBarType
 end
 
-local function setupNPC(npc)
-    if not npc:IsA("Model") then return end
-    
-    if npc:IsDescendantOf(enemyFolder) then
-        createWaitToMoveUI(npc)
-    elseif npc:IsDescendantOf(friendlyFolder) then
-        removeFriendlyRoot(npc)
-    end
+local function ApplyHealthbarToNPC(npc, defaultBarType)
+    if npc and not ProcessedNPCs[npc] then
+        ProcessedNPCs[npc] = true
+        task.spawn(function()
+            local head = npc:WaitForChild("Head", 5)
+            local humanoid = npc:WaitForChild("Humanoid", 5)
 
-    if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
-        createHPBar(npc, bossTemplate, "BossHPBar")
-    elseif npc:IsDescendantOf(enemyFolder) then
-        createHPBar(npc, enemyTemplate, "EnemyHPBar")
-    elseif npc:IsDescendantOf(friendlyFolder) then
-        createHPBar(npc, friendlyTemplate, "FriendlyHPBar")
+            if head and humanoid and AddHPBars then
+                local barType = GetHealthbarType(npc, defaultBarType)
+
+                pcall(function()
+                    firesignal(AddHPBars.OnClientEvent, npc, barType, head)
+                end)
+            else
+                ProcessedNPCs[npc] = nil
+            end
+        end)
     end
 end
 
@@ -701,30 +644,35 @@ end
 --------------------------------------------------
 -- LISTENERS & BACKGROUND LOOPS
 --------------------------------------------------
-for _, desc in ipairs(friendlyFolder:GetDescendants()) do
-    if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
-end
-for _, desc in ipairs(enemyFolder:GetDescendants()) do
-    if desc:IsA("Model") and desc:FindFirstChildOfClass("Humanoid") then task.spawn(setupNPC, desc) end
-end
-
-friendlyFolder.ChildAdded:Connect(function(child)
-    if child:IsA("Model") then
-        task.delay(0.1, function() setupNPC(child) end)
-    end
-end)
-
-enemyFolder.ChildAdded:Connect(function(child)
-    if child:IsA("Model") then
-        task.delay(0.1, function() setupNPC(child) end)
-    end
-end)
-
-CollectionService:GetInstanceAddedSignal("Boss"):Connect(function(object)
-    task.delay(0.1, function()
-        if object:IsDescendantOf(enemyFolder) then setupNPC(object) end
+if friendlyFolder then
+    task.spawn(function()
+        for _, npc in ipairs(friendlyFolder:GetChildren()) do
+            ApplyHealthbarToNPC(npc, "Friendly")
+            removeFriendlyRoot(npc)
+            task.wait(0.02)
+        end
     end)
-end)
+
+    friendlyFolder.ChildAdded:Connect(function(npc)
+        ApplyHealthbarToNPC(npc, "Friendly")
+        task.delay(0.1, function() removeFriendlyRoot(npc) end)
+    end)
+end
+
+if enemyFolder then
+    task.spawn(function()
+        for _, npc in ipairs(enemyFolder:GetChildren()) do
+            ApplyHealthbarToNPC(npc, "Enemy")
+            createWaitToMoveUI(npc)
+            task.wait(0.02)
+        end
+    end)
+
+    enemyFolder.ChildAdded:Connect(function(npc)
+        ApplyHealthbarToNPC(npc, "Enemy")
+        task.delay(0.1, function() createWaitToMoveUI(npc) end)
+    end)
+end
 
 for _, obj in ipairs(projectileFolder:GetChildren()) do processProjectile(obj) end
 projectileFolder.ChildAdded:Connect(processProjectile)
