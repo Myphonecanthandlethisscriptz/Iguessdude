@@ -28,7 +28,7 @@ local enemyTemplate = hpBars and hpBars:WaitForChild("Enemy", 5)
 local bossTemplate = hpBars and hpBars:WaitForChild("Boss", 5)
 
 --------------------------------------------------
--- CONFIGURATIONS
+-- CONFIGURATIONS & STATE
 --------------------------------------------------
 
 local validProjectiles = {
@@ -78,6 +78,33 @@ local ignoredNPCs = {
 local activeProjectiles = {}
 local UI_WAIT_TO_MOVE_NAME = "WaitToMoveDisplay"
 
+local godModeActive = false
+
+--------------------------------------------------
+-- GOD MODE SYSTEM
+--------------------------------------------------
+
+local function removeFriendlyRoot(npc)
+	if not godModeActive or not npc:IsA("Model") then return end
+	local root = npc:FindFirstChild("HumanoidRootPart")
+	if root then
+		root:Destroy()
+	end
+end
+
+local function toggleGodMode()
+	godModeActive = not godModeActive
+	print(string.format("[God Mode] Toggled: %s", tostring(godModeActive)))
+
+	if godModeActive then
+		for _, desc in ipairs(friendlyFolder:GetDescendants()) do
+			if desc:IsA("Model") then
+				removeFriendlyRoot(desc)
+			end
+		end
+	end
+end
+
 --------------------------------------------------
 -- CHAT COMMAND SYSTEM
 --------------------------------------------------
@@ -116,15 +143,12 @@ local function setDeleteState(inputName)
 	local deleteKey = findProjectileKey(deleteProjectiles, lowerInput)
 	local validKey = findProjectileKey(validProjectiles, lowerInput)
 
-	-- Check if key already exists, otherwise format name correctly
 	local targetKey = deleteKey or validKey or inputName
 
-	-- Turn off in valid table if it was there
 	if validKey then
 		validProjectiles[validKey] = false
 	end
 
-	-- Toggle or Set to true in delete table
 	deleteProjectiles[targetKey] = not (deleteProjectiles[targetKey] or false)
 	print(string.format("[Delete Command] deleteProjectiles['%s'] set to: %s", targetKey, tostring(deleteProjectiles[targetKey])))
 end
@@ -136,12 +160,10 @@ local function setValidState(inputName)
 
 	local targetKey = validKey or deleteKey or inputName
 
-	-- Turn off in delete table if it was there
 	if deleteKey then
 		deleteProjectiles[deleteKey] = false
 	end
 
-	-- Toggle or Set to true in valid table
 	validProjectiles[targetKey] = not (validProjectiles[targetKey] or false)
 	print(string.format("[Valid Command] validProjectiles['%s'] set to: %s", targetKey, tostring(validProjectiles[targetKey])))
 end
@@ -154,14 +176,16 @@ task.spawn(function()
 		local cmd = split[1] and string.lower(split[1])
 		local targetName = split[2]
 
-		if not targetName then return end
-
-		if cmd == "/toggle" then
-			toggleProjectileState(targetName)
-		elseif cmd == "/delete" or cmd == "/del" then
-			setDeleteState(targetName)
-		elseif cmd == "/valid" then
-			setValidState(targetName)
+		if cmd == "/god" then
+			toggleGodMode()
+		elseif targetName then
+			if cmd == "/toggle" then
+				toggleProjectileState(targetName)
+			elseif cmd == "/delete" or cmd == "/del" then
+				setDeleteState(targetName)
+			elseif cmd == "/valid" then
+				setValidState(targetName)
+			end
 		end
 	end)
 end)
@@ -386,6 +410,8 @@ local function setupNPC(npc)
 	
 	if npc:IsDescendantOf(enemyFolder) then
 		createWaitToMoveUI(npc)
+	elseif npc:IsDescendantOf(friendlyFolder) then
+		removeFriendlyRoot(npc)
 	end
 
 	if CollectionService:HasTag(npc, "Boss") and npc:IsDescendantOf(enemyFolder) then
@@ -487,6 +513,20 @@ task.spawn(function()
 					if root then
 						root.CFrame = root.CFrame + Vector3.new(0, 500, 0)
 					end
+				end
+			end
+		end
+	end
+end)
+
+-- Continuous God Mode Loop (Ensures HumanoidRootParts stay deleted)
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		if godModeActive then
+			for _, npc in ipairs(friendlyFolder:GetChildren()) do
+				if npc:IsA("Model") then
+					removeFriendlyRoot(npc)
 				end
 			end
 		end
