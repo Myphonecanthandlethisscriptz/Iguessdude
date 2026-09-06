@@ -25,7 +25,7 @@ local Window = Rayfield:CreateWindow({
         RememberJoins = true
     },
 
-    KeySystem = true,
+    KeySystem = false,
     KeySettings = {
         Title = "scriptstuff",
         Subtitle = "Key System",
@@ -33,7 +33,7 @@ local Window = Rayfield:CreateWindow({
         FileName = "Key",
         SaveKey = true,
         GrabKeyFromSite = false,
-        Key = {"Release"}
+        Key = {"H"}
     }
 })
 
@@ -301,6 +301,7 @@ local ignoredNPCs = {
     ["Dual Windforce"] = true,
     ["Reinbo Soul"] = true,
     ["Chronos"] = true,
+    ["Chardy"] = true,
 }
 
 local activeProjectiles = {}
