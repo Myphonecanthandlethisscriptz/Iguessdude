@@ -1,238 +1,356 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "scriptstuff",
-    Icon = 0,
-    LoadingTitle = "script stuff",
-    LoadingSubtitle = "by ME",
-    ShowText = "Rayfield",
-    Theme = "Default",
+   Name = "Release Hub",
+   Icon = 0,
+   LoadingTitle = "Release Hub",
+   LoadingSubtitle = "by Flexing",
+   ShowText = "Rayfield",
+   Theme = "Default",
 
-    ToggleUIKeybind = "K",
+   ToggleUIKeybind = "K",
 
-    DisableRayfieldPrompts = false,
-    DisableBuildWarnings = false,
+   DisableRayfieldPrompts = false,
+   DisableBuildWarnings = false,
 
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = nil,
-        FileName = "Big Hub"
-    },
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil,
+      FileName = "Big Hub"
+   },
 
-    Discord = {
-        Enabled = false,
-        Invite = "noinvitelink",
-        RememberJoins = true
-    },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink",
+      RememberJoins = true
+   },
 
-    KeySystem = false,
-    KeySettings = {
-        Title = "scriptstuff",
-        Subtitle = "Key System",
-        Note = "Key is: Release",
-        FileName = "Key",
-        SaveKey = true,
-        GrabKeyFromSite = false,
-        Key = {"H"}
-    }
-})
-
-local Tab = Window:CreateTab("depriverthing", 4483362458)
-
---------------------------------------------------
--- MORTIS / CHAPTER 4 & 5 UTILITIES
---------------------------------------------------
-Tab:CreateSection("Instant Answer Chapter 4 tumore stage 30")
-
-Tab:CreateButton({
-    Name = "Answer Clock",
-    Callback = function()
-        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-        if playerGui and playerGui:FindFirstChild("ClockQuiz") and playerGui.ClockQuiz:FindFirstChild("Answer") then
-            playerGui.ClockQuiz.Answer:FireServer(true)
-        end
-    end,
-})
-
-Tab:CreateKeybind({
-    Name = "Answer Clock Keybind",
-    CurrentKeybind = "T",
-    HoldToInteract = false,
-    Flag = "ClockAnswerKeybind",
-    Callback = function()
-        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-        if playerGui and playerGui:FindFirstChild("ClockQuiz") and playerGui.ClockQuiz:FindFirstChild("Answer") then
-            playerGui.ClockQuiz.Answer:FireServer(true)
-        end
-    end,
-})
-
-Tab:CreateSection("Auto Shoot Target and Target K1d And FUNK1D Chapter 5")
-
-_G.AutoShoot = false
-Tab:CreateToggle({
-    Name = "Auto Shoot Target",
-    CurrentValue = false,
-    Flag = "AutoShoot1", 
-    Callback = function(Value)
-        _G.AutoShoot = Value
-        if _G.AutoShoot then
-            task.spawn(function()
-                while _G.AutoShoot do
-                    local shootable = workspace:FindFirstChild("Shootable")
-                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-                    if shootable and shootable:FindFirstChild("Target") and playerGui and playerGui:FindFirstChild("CrosshairUI") then
-                        playerGui.CrosshairUI.ShootEvent:FireServer(shootable.Target)
-                    end
-                    task.wait(0.1) 
-                end
-            end)
-        end
-    end,
-})
-
-_G.AutoShootK1d = false
-Tab:CreateToggle({
-    Name = "Auto Shoot Target K1d",
-    CurrentValue = false,
-    Flag = "AutoShootK1dFlag", 
-    Callback = function(Value)
-        _G.AutoShootK1d = Value
-        if _G.AutoShootK1d then
-            task.spawn(function()
-                while _G.AutoShootK1d do
-                    local shootable = workspace:FindFirstChild("Shootable")
-                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
-                        local targetK1d = shootable:FindFirstChild("TargetK1d")
-                        if targetK1d and targetK1d:FindFirstChild("Target") then
-                            playerGui.CrosshairUI.ShootEvent:FireServer(targetK1d.Target)
-                        end
-                    end
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end,
-})
-
-_G.AutoShootFunK1d = false
-Tab:CreateToggle({
-    Name = "Auto Shoot FunK1d",
-    CurrentValue = false,
-    Flag = "AutoShootFunK1dFlag", 
-    Callback = function(Value)
-        _G.AutoShootFunK1d = Value
-        if _G.AutoShootFunK1d then
-            task.spawn(function()
-                while _G.AutoShootFunK1d do
-                    local shootable = workspace:FindFirstChild("Shootable")
-                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
-                        local funK1d = shootable:FindFirstChild("FunK1d")
-                        if funK1d and funK1d:FindFirstChild("HumanoidRootPart") then
-                            playerGui.CrosshairUI.ShootEvent:FireServer(funK1d.HumanoidRootPart)
-                        end
-                    end
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end,
-})
-
-Tab:CreateSection("Auto Shoot Tree Bush Chapter 5")
-
-_G.AutoShootBush = false
-Tab:CreateToggle({
-    Name = "Auto Shoot Tree Bush",
-    CurrentValue = false,
-    Flag = "AutoShootBushFlag", 
-    Callback = function(Value)
-        _G.AutoShootBush = Value
-        if _G.AutoShootBush then
-            task.spawn(function()
-                while _G.AutoShootBush do
-                    local shootable = workspace:FindFirstChild("Shootable")
-                    local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-                    if shootable and playerGui and playerGui:FindFirstChild("CrosshairUI") then
-                        local tree = shootable:FindFirstChild("Tree")
-                        if tree and tree:FindFirstChild("Bush") then
-                            playerGui.CrosshairUI.ShootEvent:FireServer(tree.Bush)
-                        end
-                    end
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end,
-})
-
-Tab:CreateSection("Anti Game over when you lose all heart at gamek1d (use it on last heart)")
-
-Tab:CreateButton({
-    Name = "Anti Game over at last heart",
-    Callback = function()
-        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-        if playerGui and playerGui:FindFirstChild("FunGui") and playerGui.FunGui:FindFirstChild("SuccessEvent") then
-            playerGui.FunGui.SuccessEvent:FireServer(true)
-        end
-    end,
-})
-
-Tab:CreateKeybind({
-    Name = "Anti Game Over at last heart keybind",
-    CurrentKeybind = "Y",
-    HoldToInteract = false,
-    Flag = "AntiGameOverKeybind",
-    Callback = function()
-        local playerGui = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-        if playerGui and playerGui:FindFirstChild("FunGui") and playerGui.FunGui:FindFirstChild("SuccessEvent") then
-            playerGui.FunGui.SuccessEvent:FireServer(true)
-        end
-    end,
+   KeySystem = true,
+   KeySettings = {
+      Title = "Release Hub",
+      Subtitle = "Key System",
+      Note = "Key is: Release",
+      FileName = "Key",
+      SaveKey = true,
+      GrabKeyFromSite = false,
+      Key = {"Release"}
+   }
 })
 
 --------------------------------------------------
--- CHUSTUI REMOTE BLOCKER
+-- RAYFIELD TABS & UI ELEMENTS (FROM SECOND SCRIPT)
 --------------------------------------------------
-Tab:CreateSection("Protection & Extra System")
+
+-- Tab 1: Chronos
+local TabChronos = Window:CreateTab("Chronos", 4483362458)
+TabChronos:CreateSection("Instant Answer Chapter 4 tumore stage 30")
+
+TabChronos:CreateButton({
+   Name = "Answer Clock",
+   Callback = function()
+       game:GetService("Players").LocalPlayer.PlayerGui.ClockQuiz.Answer:FireServer(true)
+   end,
+})
+
+TabChronos:CreateKeybind({
+   Name = "Answer Clock Keybind",
+   CurrentKeybind = "T",
+   HoldToInteract = false,
+   Flag = "Keybind_Clock", 
+   Callback = function(Keybind)
+       game:GetService("Players").LocalPlayer.PlayerGui.ClockQuiz.Answer:FireServer(true)
+   end,
+})
+
+-- Tab 2: FUNK1D
+local TabFUNK1D = Window:CreateTab("FUNK1D", 4483362458)
+TabFUNK1D:CreateSection("Auto Shoot Target and Target K1d And FUNK1D Chapter 5")
+
+_G.AutoShoot = false 
+TabFUNK1D:CreateToggle({
+   Name = "Auto Shoot Target",
+   CurrentValue = false,
+   Flag = "AutoShoot1", 
+   Callback = function(Value)
+       _G.AutoShoot = Value
+       if _G.AutoShoot then
+           task.spawn(function()
+               while _G.AutoShoot do
+                   if workspace:FindFirstChild("Shootable") and workspace.Shootable:FindFirstChild("Target") then
+                       game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(workspace.Shootable.Target)
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootK1d = false 
+TabFUNK1D:CreateToggle({
+   Name = "Auto Shoot Target K1d",
+   CurrentValue = false,
+   Flag = "AutoShootK1dFlag", 
+   Callback = function(Value)
+       _G.AutoShootK1d = Value
+       if _G.AutoShootK1d then
+           task.spawn(function()
+               while _G.AutoShootK1d do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local targetK1d = shootable:FindFirstChild("TargetK1d")
+                       if targetK1d and targetK1d:FindFirstChild("Target") then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(targetK1d.Target)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootFunK1d = false 
+TabFUNK1D:CreateToggle({
+   Name = "Auto Shoot FunK1d",
+   CurrentValue = false,
+   Flag = "AutoShootFunK1dFlag", 
+   Callback = function(Value)
+       _G.AutoShootFunK1d = Value
+       if _G.AutoShootFunK1d then
+           task.spawn(function()
+               while _G.AutoShootFunK1d do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local funK1d = shootable:FindFirstChild("FunK1d")
+                       if funK1d and funK1d:FindFirstChild("HumanoidRootPart") then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(funK1d.HumanoidRootPart)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+-- Tab 3: LICHEN
+local TabLICHEN = Window:CreateTab("LICHEN", 4483362458)
+TabLICHEN:CreateSection("Auto Shoot Tree Bush Chapter 5")
+
+_G.AutoShootBush = false 
+TabLICHEN:CreateToggle({
+   Name = "Auto Shoot Tree Bush",
+   CurrentValue = false,
+   Flag = "AutoShootBushFlag", 
+   Callback = function(Value)
+       _G.AutoShootBush = Value
+       if _G.AutoShootBush then
+           task.spawn(function()
+               while _G.AutoShootBush do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local tree = shootable:FindFirstChild("Tree")
+                       if tree and tree:FindFirstChild("Bush") then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(tree.Bush)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+-- Tab 4: GAMEK1D
+local TabGAMEK1D = Window:CreateTab("GAMEK1D", 4483362458)
+TabGAMEK1D:CreateSection("Anti Game over when you lose all heart at gamek1d (use it on last heart)")
+
+_G.AntiGameOver = false 
+TabGAMEK1D:CreateToggle({
+   Name = "Anti Game over at last heart",
+   CurrentValue = false,
+   Flag = "AntiGameOverToggle", 
+   Callback = function(Value)
+       _G.AntiGameOver = Value 
+       
+       if _G.AntiGameOver then
+           task.spawn(function()
+               while _G.AntiGameOver do
+                   local funGui = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("FunGui")
+                   if funGui and funGui:FindFirstChild("SuccessEvent") then
+                       funGui.SuccessEvent:FireServer(true)
+                   end
+                   task.wait(0.5) 
+               end
+           end)
+       end
+   end,
+})
+
+-- Tab 5: Mortis
+local TabMortis = Window:CreateTab("Mortis", 4483362458)
+TabMortis:CreateSection("Auto every shoot Mortis")
+
+_G.AutoShootBigStar = false 
+TabMortis:CreateToggle({
+   Name = "Auto Shoot BigStar",
+   CurrentValue = false,
+   Flag = "AutoShootBigStarFlag", 
+   Callback = function(Value)
+       _G.AutoShootBigStar = Value
+       if _G.AutoShootBigStar then
+           task.spawn(function()
+               while _G.AutoShootBigStar do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local bigStar = shootable:FindFirstChild("BigStar")
+                       if bigStar then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(bigStar)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootSuperStar = false 
+TabMortis:CreateToggle({
+   Name = "Auto Shoot SuperStar",
+   CurrentValue = false,
+   Flag = "AutoShootSuperStarFlag", 
+   Callback = function(Value)
+       _G.AutoShootSuperStar = Value
+       if _G.AutoShootSuperStar then
+           task.spawn(function()
+               while _G.AutoShootSuperStar do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local superStar = shootable:FindFirstChild("SuperStar")
+                       if superStar then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(superStar)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootShield = false 
+TabMortis:CreateToggle({
+   Name = "Auto Shoot Core Shield",
+   CurrentValue = false,
+   Flag = "AutoShootShieldFlag", 
+   Callback = function(Value)
+       _G.AutoShootShield = Value
+       if _G.AutoShootShield then
+           task.spawn(function()
+               while _G.AutoShootShield do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local core = shootable:FindFirstChild("Core")
+                       if core then
+                           local shield = core:FindFirstChild("Shield")
+                           if shield then
+                               game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(shield)
+                           end
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootSorcusBlade = false 
+TabMortis:CreateToggle({
+   Name = "Auto Shoot SorcusBlade",
+   CurrentValue = false,
+   Flag = "AutoShootSorcusBladeFlag", 
+   Callback = function(Value)
+       _G.AutoShootSorcusBlade = Value
+       if _G.AutoShootSorcusBlade then
+           task.spawn(function()
+               while _G.AutoShootSorcusBlade do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local sorcusBlade = shootable:FindFirstChild("SorcusBlade")
+                       if sorcusBlade then
+                           game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(sorcusBlade)
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+_G.AutoShootMonitorCenter = false 
+TabMortis:CreateToggle({
+   Name = "Auto Shoot Monitor Center",
+   CurrentValue = false,
+   Flag = "AutoShootMonitorCenterFlag", 
+   Callback = function(Value)
+       _G.AutoShootMonitorCenter = Value
+       if _G.AutoShootMonitorCenter then
+           task.spawn(function()
+               while _G.AutoShootMonitorCenter do
+                   local shootable = workspace:FindFirstChild("Shootable")
+                   if shootable then
+                       local monitor = shootable:FindFirstChild("Monitor")
+                       if monitor then
+                           local center = monitor:FindFirstChild("Center")
+                           if center then
+                               game:GetService("Players").LocalPlayer.PlayerGui.CrosshairUI.ShootEvent:FireServer(center)
+                           end
+                       end
+                   end
+                   task.wait(0.1) 
+               end
+           end)
+       end
+   end,
+})
+
+-- Tab 6: Others
+local TabOthers = Window:CreateTab("Others", 4483362458)
 
 _G.BlockRemoteOnly = false 
 
-if not hookmetamethod then
-    warn("❌ Executor ของคุณไม่รองรับ hookmetamethod")
-else
-    local oldNamecall
-    if not oldNamecall then
-        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-            local method = getnamecallmethod()
-            
-            if method == "FireServer" and self.Name == "RemoteEvent" then
+local oldNamecall
+if not oldNamecall then
+    oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+        local method = getnamecallmethod()
+        
+        if _G.BlockRemoteOnly and method == "FireServer" then
+            if self.Name == "RemoteEvent" and checkcaller() then
                 if self.Parent and self.Parent.Name == "ChustUI" then
-                    if _G.BlockRemoteOnly then
-                        return nil
-                    end
+                    return nil 
                 end
             end
-            
-            return oldNamecall(self, ...)
-        end)
-    end
+        end
+        
+        return oldNamecall(self, ...)
+    end)
 end
 
-Tab:CreateToggle({
-    Name = "Block ChustUI Remote",
-    CurrentValue = false,
-    Flag = "BlockChustUIDelta", 
-    Callback = function(Value)
-        _G.BlockRemoteOnly = Value
-        print(_G.BlockRemoteOnly and "🚫 เปิดการบล็อกรีโมท" or "🟢 ปิดการบล็อกรีโมท")
-    end,
+TabOthers:CreateToggle({
+   Name = "Anti Depriver",
+   CurrentValue = false,
+   Flag = "BlockChustUIRemoteFlag", 
+   Callback = function(Value)
+       _G.BlockRemoteOnly = Value 
+   end,
 })
 
 --------------------------------------------------
--- WORKSPACE & GAME SERVICES
+-- WORKSPACE & GAME SERVICES (ORIGINAL NON-RAYFIELD SCRIPT)
 --------------------------------------------------
 local Workspace = game:GetService("Workspace")
 local Players = game:GetService("Players")
@@ -319,24 +437,6 @@ local function removeFriendlyRoot(npc)
         root:Destroy()
     end
 end
-
-Tab:CreateToggle({
-    Name = "Toggle God Mode",
-    CurrentValue = false,
-    Flag = "GodModeToggle",
-    Callback = function(Value)
-        godModeActive = Value
-        print(string.format("[God Mode] Toggled: %s", tostring(godModeActive)))
-
-        if godModeActive then
-            for _, desc in ipairs(friendlyFolder:GetDescendants()) do
-                if desc:IsA("Model") then
-                    removeFriendlyRoot(desc)
-                end
-            end
-        end
-    end,
-})
 
 --------------------------------------------------
 -- CHAT COMMAND SYSTEM
