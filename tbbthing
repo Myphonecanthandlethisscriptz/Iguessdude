@@ -395,7 +395,7 @@ local validProjectiles = {
 local deleteProjectiles = {
     Hyperlaser = true, Ghostwalker = true, BigRocket = true, SpiritBomb = true,
     SorcusBlade = true, GameProjectile = true, RainbowBomb = true, GrandPiano = true,
-    Magicball = true, placenolder = true, Hellrocket = true, Flashbang = true,
+    Magicball = true, BiggerRocket = true, Hellrocket = true, Flashbang = true,
     StunPellet = false, SuperCannonBall = true, CannonBall = true, Hellball = true,
     BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
     Coal = true, UglyCake = true, Paintball = false, CrossbowArrow = true,
@@ -406,7 +406,8 @@ local deleteProjectiles = {
 local teleportUpProjectiles = {
     Execnade = true, HyperBomb = true, PirateJuice = true, Flashbang = true,
     Cesuspot = true, RottenEgg = true, SuperSpam = true, Table = true, LightBomb = true,
-    TNT = true, Ipecac = true,
+    TNT = true, Ipecac = true, Pancake = true,
+
 
 }
 
