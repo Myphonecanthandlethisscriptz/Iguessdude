@@ -400,7 +400,7 @@ local deleteProjectiles = {
     BigHellball = true, Hand = true, Piano = true, MisterSkull = true,
     Coal = true, UglyCake = true, Paintball = false, CrossbowArrow = true,
     EvilDuck = false, CoalFist = true, Teapot = false, FireTeapot = false,
-    ThrowingAxe = true, GlowThrowingAxe = true,
+    ThrowingAxe = true, GlowThrowingAxe = true, FreedomRocket = true,
 }
 
 local teleportUpProjectiles = {
